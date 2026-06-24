@@ -1,12 +1,12 @@
 # Orbit — Product Requirements Document
 
 **Name:** Orbit *(confirmed; was "Kairos" in v0.1)*
-**One-liner:** Your calendar is your profile. You see what your people are up to this week — everyday or out — join or spin up low-friction plans, and the same faces recurring turn into your community. Hosts give everyone a reason to keep showing up.
+**One-liner:** Your social calendar is your profile. Share it with the people you care about, see what your circles are up to this week, and the same faces recurring become your community.
 **Doc owner:** Ed
-**Status:** Draft v0.3 — key decisions locked (see §0.1)
+**Status:** Draft v0.4 — key decisions locked (see §0.1)
 **Platform:** PWA (MVP) → native iOS/Android (v1)
 
-> **The product in one breath.** Orbit centers on **community through repeated exposure**, built on the *everyday* texture of social life (lunches, the gym, coffee, the Tuesday hang) with host events as recurring anchors. Three stacked layers: a future-tense **calendar-as-profile**; **discovery through your people**; and a **Regulars** engine that turns incidental co-presence into real community. Availability (free/busy) is a quiet utility, not the hero.
+> **The product in one breath.** Orbit is a **personal social calendar** centered on **community through repeated exposure**, built on the *everyday* texture of social life (lunches, the gym, coffee, the Tuesday hang). Three stacked layers: a future-tense **calendar-as-profile**; **discovery through your people**; and a **Regulars** engine that turns incidental co-presence into real community. Events are **created natively in Orbit** (Google Calendar is an optional seed). Availability is a quiet utility. Letting **organizations** (PLUR, SAM, clubs) push events onto members' calendars is a **paid feature**, not the core.
 
 ---
 
@@ -17,26 +17,27 @@
 | # | Decision | Choice |
 |---|---|---|
 | 1 | Name | **Orbit** |
-| 2 | Home screen | **Discover** — this week, with social proof |
-| 3 | Privacy model | **Tiered by circle** — Inner Circle sees event content; Orbit sees free/busy |
-| 4 | Discovery scope (MVP) | **Friends + host events only** — no external/city import |
-| 5 | Regulars visibility | **Private to you**; nudges a **standing plan** |
-| 6 | Account-free depth | **View + soft-RSVP** without an account |
-| 7 | Host events | **Created in-app** (lightweight host flow) |
-| 8 | Core actions | **Join + make plans + standing (recurring) plans** |
-| 9 | Google Calendar | **Optional enhancement** — not required to use Orbit |
-| 10 | Profile contents | **Upcoming + bio/scenes** |
-| 11 | Center of gravity | **Everyday interactions first**; host events are anchors |
+| 2 | Primary product | **Sharing personal social calendars, peer-to-peer** |
+| 3 | Home screen | **Discover** — this week, with social proof |
+| 4 | Events model | **Created natively in Orbit** (exclusive to it); Google Calendar = optional **seed/import** |
+| 5 | Privacy model | **Tiered by circle** — Inner Circle sees event content; Orbit sees free/busy |
+| 6 | Discovery scope (MVP) | **Friends only** — no external/city import |
+| 7 | Regulars visibility | **Private to you**; nudges a **standing plan** |
+| 8 | Account-free depth | **View + soft-RSVP** without an account |
+| 9 | Core actions | **Join + make plans + standing (recurring) plans** |
+| 10 | Availability (free/busy) | **Quiet utility** — used inside make-a-plan, not a hero |
+| 11 | Google Calendar | **Optional** — seeds your calendar + availability; not required |
+| 12 | Profile contents | **Upcoming + bio/scenes** |
+| 13 | Org/host event-injection | **Paid B2B2C feature** (sold to groups), not the MVP engine |
+| 14 | Center of gravity | **Everyday, personal calendar sharing**; orgs are a paid expansion |
 
-### 0.2 What changed from v0.1 ("Kairos")
+### 0.2 What changed across versions
 
-1. **New north star:** from *"plans that happened"* → **recurring co-presence** (acquaintances becoming regulars).
-2. **Hero flips:** from *Open Time* (availability) → **Discover + Profile + Regulars**.
-3. **Privacy inverts, with a valve:** from free/busy-only → **content shared, tiered by circle**; free/busy is the fallback tier, not the whole model.
-4. **The host is the engine:** Ed's events solve cold-start and perpetually fuel repeated exposure.
-5. **Everyday-first (v0.3):** the daily fabric is ordinary interactions; this brings back **Status/Intention** and keeps **free/busy** as a live utility.
+- **v0.1 → v0.2:** north star from *plans-that-happened* → **recurring co-presence**; hero from *availability* → **profile + discovery + Regulars**; privacy from free/busy-only → **content, tiered by circle**.
+- **v0.3:** **everyday-first** — ordinary interactions are the fabric; brought back **Status/Intention**; kept **free/busy** as a utility.
+- **v0.4 (this version):** **personal calendar sharing is the core** (not host-as-engine); **events are Orbit-native**, Google Calendar is a seed; **org event-injection is a paid tier** (§11). Cold-start re-based on peer virality + your personal graph (§10).
 
-Inherited from v0.1 unless noted: tech architecture (§11 there), OAuth scope strategy, PWA constraints. See §12 for deltas.
+Inherited from v0.1 unless noted: tech architecture, OAuth scope strategy, PWA constraints. See §13 for deltas.
 
 ---
 
@@ -44,26 +45,26 @@ Inherited from v0.1 unless noted: tech architecture (§11 there), OAuth scope st
 
 Instagram is a museum of the past — proof of what you already did. A calendar points the other way: a future-tense, *actionable* record of what you're about to do. That makes it a far better social object, because "you're going to that? I'm in" turns a profile view into a plan. A photo grid can't.
 
-Orbit makes your calendar your profile, and routes discovery through the calendars of the people you know — but discovery isn't the point. The point is what it produces: **repeated exposure to the same group of people**, the only thing that reliably turns acquaintances into a community. And the substance is **everyday**: lunches, workouts, coffee, the standing Tuesday hang — not just nights out. Everyday recurrence is exactly the soil community grows in.
+Orbit is your **personal social calendar, made shareable** — a future-tense profile of what you're up to that you share with the people you care about, tier by tier. You open it to **Discover** what your circles are doing this week (everyday or out), join with a tap or spin up a low-friction plan, and over time Orbit surfaces your **Regulars** — the people you keep ending up around — and nudges them into standing plans. The substance is **everyday**: lunches, workouts, coffee, the standing Tuesday hang. Everyday recurrence is exactly the soil community grows in, and turning acquaintances into regulars is the whole job.
 
-The unlock that makes this real is the **host**. Ed runs events; a host can unilaterally give people a reason to be in the same room, with no network required — the bootstrap that kills every other social-calendar startup. Host events anchor the everyday fabric; attendance and everyday hangs populate calendars; overlap surfaces *Regulars* (the people you keep ending up around); Orbit nudges those familiar faces into standing plans; a denser community shows up to more, everyday and hosted alike. The flywheel turns on day one.
+Events are **created in Orbit** and live there; connecting Google Calendar is an optional convenience that seeds your week and powers availability. Growth is **peer-to-peer** — shareable profiles and account-free RSVP pull your friends in — seeded by your own dense communities. Later, **organizations** (PLUR.NYC, SAM, clubs, run crews) can pay to push their events onto members' shared calendars — a distribution-and-revenue feature layered on top of a product that already works for individuals.
 
-Beachhead: the NYC social graph already reachable through PLUR.NYC and SAM — dense, pre-connected, taste-driven, already gathering around events Ed controls.
+Beachhead: the NYC social graph already reachable through PLUR.NYC and SAM — dense, pre-connected, taste-driven.
 
 ---
 
 ## 2. Thesis: community is a byproduct of repeated exposure
 
-**The mechanism.** Proximity and repetition, not compatibility, create relationships (Festinger's propinquity effect; Zajonc's mere-exposure effect). You grow close to the people you keep incidentally encountering — the regulars. Friendship precipitates out of recurrence; it is almost never engineered directly. **Everyday** life is where that recurrence actually happens — which is why Orbit is everyday-first and treats host events as the high-gravity anchors inside an everyday fabric, not as the product itself.
+**The mechanism.** Proximity and repetition, not compatibility, create relationships (Festinger's propinquity effect; Zajonc's mere-exposure effect). You grow close to the people you keep incidentally encountering — the regulars. Friendship precipitates out of recurrence; it is almost never engineered directly. **Everyday** life is where that recurrence happens, which is why Orbit is everyday-first.
 
 **The failure of everyone else.** Social products engineer the *connection* — feeds, follower graphs, suggestions, matching — and optimize reach and engagement. A feed gives you a thousand weak, one-way exposures to people you'll never share a room with. Orbit inverts the target: **engineer recurrence, not connection.** Make the same real people keep showing up in each other's actual lives, and community forms on its own.
 
 **Three stacked layers:**
 - **Calendar-as-profile** — your future-tense identity. What you're into, expressed by where you're going. Browseable, account-free-viewable, screenshot-worthy — the social object that replaces the IG profile, but *forward-pointing and therefore joinable*.
-- **Discovery through your people** — find things to do (everyday or out) by seeing what your friends and scenes are up to this week, with social proof ("who you know is going").
-- **Regulars, hosted** — the host supplies recurring occasions; Orbit makes the resulting overlaps *visible* ("you've seen Maya 3×") and *actionable* (a standing plan), turning incidental co-presence into a named, growing community.
+- **Discovery through your people** — find things to do (everyday or out) by seeing what your circles are up to this week, with social proof ("who you know is going").
+- **Regulars** — Orbit makes recurring overlaps *visible* ("you've seen Maya 3×") and *actionable* (a standing plan), turning incidental co-presence into a named, growing community.
 
-**Positioning, one line:** the everyday, future-tense identity-and-discovery layer that turns a host's events into a self-densifying community — where Instagram is past-tense and solitary, Partiful is episodic and amnesiac, and Howbout is a utility with no identity, discovery, or community model.
+**Positioning, one line:** the everyday, future-tense personal social calendar that routes discovery through your people and is engineered to make the same faces recur until they're a community — where Instagram is past-tense and solitary, Partiful is episodic and amnesiac, and Howbout is a utility with no identity, discovery, or community model.
 
 ---
 
@@ -78,9 +79,9 @@ Beachhead: the NYC social graph already reachable through PLUR.NYC and SAM — d
 | **Geneva / Discord** | Community containers, chat | No calendar truth; chat-first, high-maintenance, not ambient |
 | **Google / Apple Calendar** | Source of truth, ubiquity | Solitary, sterile, no social model |
 
-**White space:** a future-tense *profile* (1) design-forward enough to be your public face, (2) plugged into your people's real calendars for everyday discovery, (3) built to maximize *repeated exposure to the same people*, and (4) host-seeded and continuously fueled. No incumbent holds even two corners together. Partiful is closest on (1)/(4) but amnesiac — no concept of "the people you keep seeing," which is the whole point.
+**White space:** a future-tense *personal calendar* that is (1) design-forward enough to be your public face, (2) plugged into your people's calendars for everyday discovery, (3) built to maximize *repeated exposure to the same people*, and (4) cheap to seed peer-to-peer. No incumbent holds even two corners together. Partiful is closest on identity/events but amnesiac — no concept of "the people you keep seeing," which is the whole point.
 
-**Defensibility:** the **co-presence graph** (who keeps ending up around whom — impossible to backfill, stickier each week), the **host relationship** (a warm, exactly-ICP graph incumbents can't buy), and **identity lock-in** (your calendar becomes your social face).
+**Defensibility:** the **co-presence graph** (who keeps ending up around whom — impossible to backfill, stickier each week), **identity lock-in** (your calendar becomes your social face), and a **community-seeded graph** (your dense pre-connected pockets, later widened by the paid org tier).
 
 ---
 
@@ -95,7 +96,7 @@ The soul carries from v0.1's "intentional," sharpened: Orbit *embraces* discover
 - **Discovery in service of meeting, not scrolling.** There *is* a Discover home (a reversal from v0.1), but it's bounded — "this week," finite — and oriented to action. No infinite feed.
 - **Memory of co-presence — a deliberate, narrow past tense.** Orbit remembers who you've been around (to power Regulars); almost nothing else. Threads and statuses fade; the recurrence graph persists, because it *is* the product.
 - **Calm notifications.** Batched digest at a time you pick. Real-time only for convergence ("3 of your regulars are converging on lunch").
-- **Density over reach.** The unit is the *scene/pocket*, not the dyad and not the global network.
+- **Density over reach.** The unit is the *circle/pocket*, not the dyad and not the global network.
 - **Soft commitment.** RSVP is a gradient (Down / Maybe / Can't), so tentative everyday plans form earlier and recur more easily.
 - **Beauty is a feature.** Profile and event pages must clear "a designer would screenshot this." References: Partiful's warmth, Luma's dark sophistication, Amie/Notion Calendar's editorial calm — synthesized, decluttered.
 
@@ -106,11 +107,11 @@ The soul carries from v0.1's "intentional," sharpened: Orbit *embraces* discover
 - **Profile** — your future-tense identity: what you're going to (by visibility tier) + a short bio + your scenes. Account-free-viewable, shareable, screenshot-worthy.
 - **Discover** — the home. This week's events *and* everyday openings from your people, chronological, with social proof.
 - **Intention / Status** — the everyday on-ramp: a lightweight, expiring broadcast ("free for lunch," "gym at 6, join?") to a chosen tier. The lowest-friction way to create a hang.
-- **Plan** — a concrete hang you spin up (find a time, invite, soft-RSVP, write back). **Standing plans** (recurring) are first-class — Tuesday lunch, Sunday run — because recurrence is the thesis.
-- **Event** — a first-class, *joinable* object with a page and who's-going. **Host/Anchor events** (Ed's) are created in-app and act as recurring gravity wells.
-- **Regulars** — *the hero magic.* The people you keep ending up around, surfaced privately from overlapping presence; nudges you toward a standing plan. Shows you your emerging community before you'd have noticed it.
-- **Circles & the visibility tiers** — your graph in closeness tiers: **Inner Circle** sees event *content*; **Orbit** sees *free/busy* only. One-tap ghost mode.
-- **The Scene** — a host/community surface (PLUR, SAM, a run crew): its anchor events and its regulars. The Poiesis bridge.
+- **Plan** — a concrete hang you spin up (invite, soft-RSVP, optionally write to Google). **Standing plans** (recurring) are first-class — Tuesday lunch, Sunday run.
+- **Event** — a first-class, *joinable* object you create **in Orbit**, with a page and who's-going. (Organizations can create events too — that's the paid tier, §11.)
+- **Regulars** — *the hero magic.* The people you keep ending up around, surfaced privately from overlapping presence; nudges you toward a standing plan.
+- **Circles & visibility tiers** — your graph in closeness tiers: **Inner Circle** sees event *content*; **Orbit** sees *free/busy* only. One-tap ghost mode.
+- **The Scene** — an organization's surface (PLUR, SAM, a run crew) that pushes events to members. A **paid** product (§11), the Poiesis bridge.
 
 ---
 
@@ -120,7 +121,6 @@ The soul carries from v0.1's "intentional," sharpened: Orbit *embraces* discover
 Discover (home)
 ├── This week: events + everyday openings from your people
 ├── Social proof on each (who you know is going / who's free)
-├── From your scenes (host/anchor events)
 └── Join → soft-RSVP → lands on your calendar & profile
 
 Profile (your identity surface)
@@ -141,7 +141,7 @@ Regulars (private)
 └── Scenes you're becoming a regular of
 
 You
-├── Connect Google Calendar (optional)
+├── Connect Google Calendar (optional — seeds week + availability)
 ├── Circles & visibility tiers + ghost mode
 ├── Notification cadence
 └── Theme / appearance
@@ -154,35 +154,34 @@ You
 **F1 — Profile (calendar-as-identity).** Public-by-link, future-tense profile: upcoming (by visibility tier) + bio + scenes. Account-free viewable; screenshot-worthy; the primary share/growth surface.
 *Acceptance:* a stranger opens your link, grasps who you are *by where you're going*, and can follow or join a public event with no account.
 
-**F2 — Discover (home).** This week's events *and* everyday openings from your people, chronological, each with social proof ("who you know is going / who's free"). Bounded and action-oriented — not an infinite feed.
-*Acceptance:* with ≥3 connections, the user finds at least one real thing to do *and* sees who they'd know there, in under 15 seconds.
+**F2 — Discover (home).** This week's events *and* everyday openings from your people, chronological, each with social proof ("who you know is going / who's free"). Bounded, not an infinite feed.
+*Acceptance:* with ≥3 connections, the user finds one real thing to do *and* sees who they'd know there, in under 15 seconds.
 
-**F3 — Events + lightweight host flow.** First-class joinable events (page, who's-going, soft-RSVP, visibility). The host creates anchor events in-app via a simple flow; joining writes to the joiner's calendar and profile.
-*Acceptance:* Ed creates an event in under a minute; his graph sees it; one-tap join lands it on the joiner's calendar/profile; the page is screenshot-worthy.
+**F3 — Create events (Orbit-native) + Google seed/import.** Anyone can create an event in Orbit in under a minute (title, when, where, cover, visibility) — events live in Orbit and are the shareable social layer. Connecting Google **imports** existing commitments to seed your week and availability; it is not the source of truth for social events.
+*Acceptance:* a user creates an Orbit event fast; if they connect Google, their existing commitments appear without manual entry; created events never silently leak to Google unless the user writes them back (F8).
 
 **F4 — Intention / Status.** Two-tap everyday broadcast ("free for lunch," "gym at 6, join?") to a chosen tier; auto-expires. The lowest-friction path into a hang; shows up ambiently on friends' Discover.
-*Acceptance:* setting an intention takes two taps; friends see it this-week; it disappears on its own; nothing accumulates.
+*Acceptance:* setting an intention takes two taps; friends see it this-week; it disappears on its own.
 
-**F5 — Plans + standing plans.** Spin up a hang (invite, soft-RSVP, write-back) — and **recurring/standing plans** that auto-propose the next slot from the group.
+**F5 — Plans + standing plans.** Spin up a hang (invite, soft-RSVP) — and **recurring/standing plans** that auto-propose the next slot from the group.
 *Acceptance:* "want to see these people" → sent plan in under a minute; a standing plan re-proposes itself with no re-organizing.
 
 **F6 — Regulars (repeated-exposure engine).** *Private to you.* Surfaces the people you keep co-occurring with (everyday + events) and nudges a standing plan. Warm, never surveillant.
 *Acceptance:* after sharing ≥3 occasions with someone, they appear as a Regular with a one-tap "make it a standing thing"; visible only to you.
 
-**F7 — Circles + tiered visibility.** Inner Circle (sees content) / Orbit (sees free/busy); conservative defaults; one-tap ghost mode. The privacy model and safety valve in one.
+**F7 — Circles + tiered visibility.** Inner Circle (sees content) / Orbit (sees free/busy); conservative defaults; one-tap ghost mode.
 *Acceptance:* a user trusts the model in under a minute; every item's audience is obvious and changeable in one tap.
 
-**F8 — Soft-RSVP + account-free RSVP + write-back.** Down / Maybe / Can't on any event/plan; non-users can view and soft-RSVP via link (install nudge after). Confirmed attendance writes to Google Calendar *if connected*.
-*Acceptance:* a non-user RSVPs from a shared link with no account; a connected user's "I'm in" lands on their real calendar.
+**F8 — Soft-RSVP + account-free RSVP + optional write-back.** Down / Maybe / Can't on any event/plan; non-users can view and soft-RSVP via link (install nudge after). If Google is connected, the user may write a confirmed plan to their Google Calendar.
+*Acceptance:* a non-user RSVPs from a shared link with no account; a connected user can opt to mirror a plan into Google.
 
-**F9 — Google Calendar (optional connect).** Orbit works standalone; connecting Google Calendar auto-populates your week and enables the **free/busy availability utility** (used in plan-making and tiered sharing). Scopes requested just-in-time.
+**F9 — Google Calendar (optional connect).** Orbit is fully usable standalone. Connecting Google **seeds** your week from existing commitments and enables the **free/busy availability utility** (F10). Scopes requested just-in-time.
 *Acceptance:* a user is fully functional without connecting; connecting visibly enriches Discover and plan-making within seconds.
 
-**F10 — Ephemeral plan thread.** Per-plan, fades after the event (Mayfly substrate). Coordination, not an inbox.
+**F10 — Availability utility (free/busy).** *Quiet utility, not a screen.* Used inside make-a-plan to suggest times that work, and to power the Orbit-tier "free/busy" visibility. No availability home screen.
+*Acceptance:* the slot suggester respects everyone's free/busy without exposing Inner-Circle-only content to the Orbit tier.
 
-**F11 — Slow notifications.** Batched digest by default; real-time only for convergence moments. Full cadence control.
-
-**F12 — PWA install.** Guided, Safari-aware install (push requires home-screen install on iOS); honest about why; non-installers still usable.
+**F11 — Ephemeral plan thread** (Mayfly substrate; fades after the event) · **F12 — Slow notifications** (batched; real-time only for convergence) · **F13 — PWA install** (guided, Safari-aware).
 
 ---
 
@@ -192,17 +191,17 @@ You
 |---|---|---|---|
 | Profile (calendar-as-identity) | ● | ● | ● |
 | Discover (home, social proof) | ● | ● | ● |
-| Events + lightweight host flow | ● | ● | ● |
+| Create Orbit-native events | ● | ● | ● |
 | Intention / Status (everyday) | ● | ● | ● |
 | Plans + standing plans | ● | ● | ● |
 | **Regulars (private engine)** | ● | ● | ● |
 | Circles + tiered visibility | ● | ● | ● |
 | Soft-RSVP + account-free RSVP | ● | ● | ● |
-| Google Calendar (optional) + free/busy | ● | ● | ● |
+| Google Calendar seed + free/busy utility | ● | ● | ● |
 | Ephemeral plan thread | ● | ● | ● |
 | Slow notifications | ● (web push) | ● (native) | ● |
 | PWA install | ● | n/a | n/a |
-| Scene / community pages (host) | ◐ basic | ● | ● |
+| **Org event-injection + Scene pages (PAID)** | ○ | ◐ | ● |
 | Cultural-events import (city) | ○ | ◐ | ● |
 | Home-screen Regulars/availability widget | ○ | ● | ● |
 | Serendipity ("both free + both regulars") | ○ | ● | ● |
@@ -222,9 +221,9 @@ The metric *is* the thesis. Get it wrong and you build Instagram.
 
 **The recurrence funnel (core diagnostic):** 1st co-presence → **3rd-occasion conversion** (the central job) → standing-plan formation.
 
-**Activation (first 2 weeks):** ≥3 connections **+** joined ≥1 thing **+** ≥1 surfaced Regular. The "aha" is seeing a familiar face *named*.
+**Activation (first 2 weeks):** ≥3 connections **+** joined/created ≥1 thing **+** ≥1 surfaced Regular. The "aha" is seeing a familiar face *named*.
 
-**Community/graph health:** co-presence density inside a pocket; % of users with ≥1 recurring connection; host-event → repeat-attendee rate.
+**Community/graph health:** co-presence density inside a pocket; % of users with ≥1 recurring connection; invite K-factor (profile/event share → install → reciprocated connection).
 
 **Retention:** weekly cadence (open to see what your people are up to). Thesis to validate: **users who form ≥1 recurring connection retain dramatically better.**
 
@@ -232,105 +231,108 @@ The metric *is* the thesis. Get it wrong and you build Instagram.
 
 ---
 
-## 10. The flywheel & go-to-market
+## 10. Cold-start & go-to-market
 
-The host solves cold-start — the genre's killer. You can give people a reason to show up on day one.
+Cold-start is the genre's killer, and with the host demoted from "engine" to a paid feature, the MVP must stand on **peer-to-peer virality + solo value + a pre-connected seed graph**:
 
-```
-Host throws / a friend posts an everyday intention
-        ↓
-People join → it lands on calendars & profiles
-        ↓
-Overlapping presence accrues → Regulars surface (private)
-        ↓
-Orbit nudges familiar faces → standing plans form
-        ↓
-Denser community → more hangs, everyday & hosted → (loop)
-```
+- **Solo value.** Your profile/calendar is worth maintaining alone — a curated, future-tense social identity — so early users stay while their friends arrive.
+- **Peer virality.** Every profile and event page is shareable and account-free-viewable; soft-RSVP without an account (the Partiful loop) pulls the wider graph in. Joining re-publishes to the joiner's profile, exposing *their* graph.
+- **Seed the pocket.** Launch into one dense, pre-connected cluster from your own communities (PLUR/SAM social graphs) as *individuals and friend-groups* — density inside a pocket is enough; you don't need global scale.
+- **Your personal hosting helps.** Events you personally host still give your friends reasons to show up — that's just you using the core product well, not a separate engine.
 
-**Phase 1 — seed one pocket.** Launch into a single dense PLUR/SAM cluster around real events Ed hosts; density *inside the pocket* is enough, and the host manufactures it.
-**Phase 2 — profile + event-page virality.** Every profile/event page is a shareable, account-free-viewable growth surface; joining re-publishes to the joiner's profile, exposing their graph.
-**Phase 3 — wedge expansion.** Scene → adjacent scenes → other cities, same host-anchored pocket-density playbook.
-**Phase 4 — Scenes as a product (Poiesis bridge).** Hosts run member-facing Scene pages; audiences become connected graphs. B2B2C + distribution loop.
+**Then, monetize distribution (§11):** once the consumer loop works in a pocket, sell **organizations** the ability to push their events onto members' shared calendars — turning their audiences into connected Orbit graphs. That's both revenue and a distribution flywheel, layered on a product that already works without it.
 
 ---
 
-## 11. Relationship to your other builds
+## 11. Monetization
 
-- **Poiesis** = the *host/operator* surface (run the event). **Orbit** = the *attendee/personal* surface (live your week, become a regular). Shared graph and event notion; the **Scene** is the seam. The host pillar is the Poiesis bridge, now load-bearing. (MVP host flow is lightweight and in-Orbit; deeper host tooling lives in Poiesis.)
-- **Mayfly** (ephemeral chat) → plan threads (F10) and statuses (F4).
-- **PLUR.NYC / SAM** → the host-seeded pocket; cold-start made of real, recurring events.
+No ads — incompatible with the ethos and the trust story. Three compatible streams:
+
+- **Consumer core — free.** Personal calendar sharing, circles, Discover, plans, standing plans, Regulars. The whole loop is genuinely useful for free; this is the graph-builder.
+- **Org / Scene tier — paid B2B2C (the feature you sell).** Organizations (PLUR.NYC, SAM, clubs, run crews) pay to **broadcast events onto members' shared calendars**, with a branded **Scene page**, member analytics, and recurring-event tools. This is the explicit monetization the product is designed around: individuals get a free personal calendar; *groups* pay to reach everyone's calendar at once. It is also the Poiesis bridge (§12) and a distribution loop.
+- **Orbit+ — consumer subscription (later, ~$4–6/mo).** Power/delight only — more circles, generative event art, AI plan concierge, premium themes, the Reel/year-in-review. Never gates the core loop.
+
+The dividing line: **free for a person, paid for an organization.** A user sharing their own social calendar never pays; an org that wants to put events in front of a whole community does.
+
+---
+
+## 12. Relationship to your other builds
+
+- **Poiesis** = the *organizer/operator* surface (run the event). **Orbit** = the *personal* surface (your social calendar, your people). The **Org/Scene tier (§11) is the seam** — a Poiesis-run event surfaces natively on members' Orbit calendars. This is now explicitly the *paid* connective tissue, not the consumer engine.
+- **Mayfly** (ephemeral chat) → plan threads (F11) and statuses (F4).
+- **PLUR.NYC / SAM** → the pre-connected seed pocket (consumer cold-start) *and* the first buyers of the Org tier.
 - **Stack** (Next.js, Supabase, Cloudflare DO/Yjs, Anthropic) is largely reused; new surface area is the co-attendance graph and the Discover/Profile rendering.
 
 ---
 
-## 12. Technical deltas from v0.1
+## 13. Technical deltas from v0.1
 
 Inherited: v0.1 architecture, OAuth scope strategy, PWA constraints. Changes:
 
-- **Events are first-class shared objects**, not just free/busy blocks. New tables ≈ `events` (host- or user-owned; `visibility ∈ {inner, orbit, public}`; cover, location, time; `recurring` flag for standing plans), `event_attendance` (`event_id`, `user_id`, `rsvp ∈ {down,maybe,cant,none}`, `source ∈ {hosted, joined, intention}`), `statuses`/intentions (text, vibe, tier, `expires_at`). v0.1's `availability_blocks` survives for the F9 utility.
-- **Co-presence graph** is the new core structure: derive `(user_a, user_b, shared_count, last_shared_at)` from attendance + standing plans. Powers Regulars (F6) and the north star. The one thing Orbit deliberately remembers.
-- **Tiered-circle visibility replaces free/busy-only** as the default authz question. Postgres RLS enforces it: Inner reads content; Orbit reads free/busy; cross-tier content reads are refused at the DB layer.
-- **Google Calendar is optional.** Onboarding does not require it → much lower friction and *defers Google's restricted-scope verification* until the feature is switched on for a user. Connected users get auto-populated weeks + the free/busy utility; everyone else uses Orbit-native events/intentions/plans. Write-back (`events.insert`) still requested just-in-time at first write.
-- **Reuse from the current `social-cal` prototype:** the shareId + account-free public-page pattern, and the per-event `isPublic` flag (the seed of the visibility tiers). Rebuild on the v0.1 stack; the manual event-CRUD becomes the lightweight host/plan flow.
+- **Orbit-native events are first-class and the source of truth for the social layer.** Tables ≈ `events` (creator: user or org; `visibility ∈ {inner, orbit, public}`; cover, location, time; `recurring` flag), `event_attendance` (`rsvp ∈ {down,maybe,cant,none}`, `source ∈ {created, joined, intention}`), `intentions` (text, vibe, tier, `expires_at`). Google-imported items are stored as **seed/availability data**, flagged distinctly from Orbit-native events.
+- **Co-presence graph** is the core structure: derive `(user_a, user_b, shared_count, last_shared_at)` from attendance + standing plans. Powers Regulars (F6) and the north star.
+- **Tiered-circle visibility** via Postgres RLS: Inner reads content; Orbit reads free/busy; cross-tier content reads refused at the DB layer.
+- **Google Calendar is optional and import-only by default.** Connecting **reads** to seed the week + free/busy (`events.list` + `syncToken`, `freebusy.query`); **writing** Orbit plans into Google (`events.insert`) is an explicit opt-in per plan (F8). Optionality **defers Google restricted-scope verification** until the feature is switched on broadly.
+- **Org tier** introduces `orgs`, `org_members`, and org-authored `events` with a fan-out to members' calendars — gated behind billing. Out of MVP scope; schema designed so it slots in.
+- **Reuse from the current `social-cal` prototype:** the shareId + account-free public-page pattern, and the per-event `isPublic` flag (the seed of the visibility tiers). The existing manual event-CRUD is essentially F3 in embryo. Rebuild on the v0.1 stack.
 
 ---
 
-## 13. Privacy & safety
+## 14. Privacy & safety
 
-Carries v0.1 §12 (data minimization for the free/busy utility, RLS as authz, JIT consent, token hygiene, conservative defaults, ghost mode) **plus**:
+Carries v0.1 §12 (data minimization for free/busy, RLS as authz, JIT consent, token hygiene, conservative defaults, ghost mode) **plus**:
 
 - **Tiered content is the model:** Inner sees what; Orbit sees when. New connections default conservative until placed in a tier.
-- **Future-tense location is a safety surface.** A public future plan can broadcast where you'll be. Mitigations: Google-synced events default private; location coarsened/hidden on public events unless opted in; ghost mode one tap; the *public* tier is always an explicit per-item choice.
-- **Co-presence memory is sensitive and private.** Regulars is private-to-you by default (locked decision #5); minimal data (counts + timestamps + refs), never a behavioral dossier.
-- **Discovery ≠ surveillance.** You only ever see what someone chose to share at the tier they chose. No "who viewed you," no location pings.
+- **Future-tense location is a safety surface.** Mitigations: Google-imported items default private; location coarsened/hidden on public events unless opted in; ghost mode one tap; the *public* tier is always an explicit per-item choice.
+- **Co-presence memory is sensitive and private.** Regulars is private-to-you (decision #7); minimal data (counts + timestamps + refs), never a behavioral dossier.
+- **Discovery ≠ surveillance.** You only see what someone chose to share at the tier they chose. No "who viewed you," no location pings.
 
 ---
 
-## 14. Risks & mitigations
+## 15. Risks & mitigations
 
 | Risk | Severity | Mitigation |
 |---|---|---|
+| Cold start (host no longer the engine) | High | Solo value; peer virality (account-free RSVP); seed one dense pocket; your personal hosting still helps |
 | Drifts into Instagram (engagement bait) | High | §9 anti-metrics with owners; the §4 test; Discover stays bounded/join-oriented |
-| Future-tense location / safety | High | Synced events private by default; coarsened public location; per-item public opt-in; ghost mode |
-| Cold start | Med (host de-risks) | Host-seeded pocket density; account-free virality; solo value via your own profile |
+| Future-tense location / safety | High | Imported items private by default; coarsened public location; per-item public opt-in; ghost mode |
 | Privacy backlash (content is sensitive) | High | Tiered visibility + RLS; conservative defaults; lead with trust + safety |
-| Regulars feels creepy not warm | Med | Private-by-default; gentle opt-in nudges; counts not dossiers; high copy/UX bar |
+| Org tier cannibalizes the calm ethos | Med | Org events respect members' visibility & notification settings; opt-in to a Scene; no spam |
 | Everyday friction too high → no recurrence | Med | Two-tap Intentions; standing plans; ruthless friction budget on the core loop |
-| Google verification + CASA | Med (deferred) | GCal optional → verification needed only when the feature ships broadly; narrowest scopes, JIT |
-| Scope creep | Med | Hold the §8 matrix; MVP is F1–F12 |
+| Google verification + CASA | Med (deferred) | GCal optional/import → verification needed only when shipped broadly; narrowest scopes, JIT |
+| Scope creep | Med | Hold the §8 matrix; MVP is F1–F13; org tier is post-MVP |
 
 ---
 
-## 15. Open questions
+## 16. Open questions
 
-*(Resolved by the v0.3 interview: name, home screen, privacy model, discovery scope, Regulars visibility + action, account-free depth, host-event creation, core actions, Google Calendar requirement, profile contents, everyday-first.)*
+*(Resolved by interview: name, primary product, home screen, events model, privacy model, discovery scope, Regulars visibility + action, account-free depth, core actions, availability role, Google requirement, profile contents, org-tier-as-paid.)*
 
 Still open:
-- **Discover ranking details** beyond chronological-with-social-proof — how to weight host events vs friends' everyday openings without becoming a popularity feed.
+- **Discover ranking** beyond chronological-with-social-proof — weighting without becoming a popularity feed.
 - **Standing-plan mechanics** — how aggressively to auto-propose the next slot; opt-in vs default.
-- **Scene pages in MVP** — basic host page now, or wait for Poiesis integration?
-- **One app or two** (Orbit vs Poiesis) — data/brand boundary, given the in-Orbit host flow.
-- **Where exactly the "bounded discovery vs feed" line sits** as usage grows.
+- **Org tier shape** — pricing, and how much Scene tooling lives in Orbit vs Poiesis.
+- **One app or two** (Orbit ↔ Poiesis) data/brand boundary.
+- **Where "bounded discovery" ends and "a feed" begins** as usage grows.
 
 ---
 
-## 16. Roadmap & milestones
+## 17. Roadmap & milestones
 
-**Phase 0 — Foundation (weeks 0–2).** Auth, the **Profile** (F1) + **Discover** shell (F2), Circles + tiered visibility (F7), optional Google Calendar connect (F9). *Milestone: your profile is something you'd actually share, and Discover shows something real.*
+**Phase 0 — Foundation (weeks 0–2).** Auth, the **Profile** (F1) + **Discover** shell (F2), create Orbit-native events (F3), Circles + tiered visibility (F7), optional Google seed (F9). *Milestone: your profile is something you'd actually share, and Discover shows something real.*
 
-**Phase 1 — The everyday recurrence loop (weeks 2–8).** Events + host flow (F3), Intentions (F4), Plans + standing plans (F5), Regulars (F6), soft/account-free RSVP + write-back (F8), threads (F10), slow notifications (F11), PWA install (F12). *Milestone: a closed beta in one PLUR/SAM pocket produces real repeat co-presence — pairs reaching a 3rd shared occasion.*
+**Phase 1 — The everyday recurrence loop (weeks 2–8).** Intentions (F4), Plans + standing plans (F5), Regulars (F6), soft/account-free RSVP + optional write-back (F8), availability utility (F10), threads (F11), slow notifications (F12), PWA install (F13). *Milestone: a closed beta in one pocket produces real repeat co-presence — pairs reaching a 3rd shared occasion.*
 
-**Phase 2 — Delight & Scenes.** Scene pages, serendipity, AI concierge, generative art, the Reel, native shell + widget. *Milestone: north-star growing week over week without engagement-bait.*
+**Phase 2 — Monetize + delight.** **Org/Scene tier** (§11), serendipity, AI concierge, generative art, the Reel, native shell + widget. *Milestone: first paying org; north-star growing week over week without engagement-bait.*
 
 **Phase 3 — Full vision (native).** Live "Tonight" layer, tap-to-connect, Apple/Outlook, context integrations, E2E. *Milestone: category-defining across multiple city pockets.*
 
 ---
 
-## 17. Appendix
+## 18. Appendix
 
-**Core differentiator, one line:** *the only calendar that is your future-tense profile, routes everyday discovery through your people, and is engineered — host-seeded — to make the same faces recur until they're a community.*
+**Core differentiator, one line:** *the only personal calendar that is your future-tense profile, routes everyday discovery through your people, and is engineered to make the same faces recur until they're a community — free for people, paid for the orgs that want to reach them.*
 
 **Design references:** Partiful (warmth, shareable pages), Luma (dark sophistication), Amie/Notion Calendar (editorial calm), Locket (ambient intimacy) — synthesized, decluttered. Profile and event pages must clear "a designer would screenshot this."
 
-**Inherited constraints:** Google Calendar API (Events, Freebusy, watch channels, syncToken) + restricted-scope verification/CASA (deferred by optional connect); iOS PWA limits in 2026 (install-gated push, no background sync, no widgets, eviction).
+**Inherited constraints:** Google Calendar API (Events, Freebusy, watch channels, syncToken) + restricted-scope verification/CASA (deferred by optional/import-only connect); iOS PWA limits in 2026 (install-gated push, no background sync, no widgets, eviction).
