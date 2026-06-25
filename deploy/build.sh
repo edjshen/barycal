@@ -4,7 +4,7 @@
 # only assembles the HTML shell + assets and points window.ORBIT_API at it.
 #
 # Cloudflare Pages settings (Connect to Git):
-#   Production branch:        claude/practical-newton-jbaxit
+#   Production branch:        master
 #   Framework preset:         None
 #   Build command:            bash deploy/build.sh
 #   Build output directory:   _site
