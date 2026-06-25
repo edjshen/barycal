@@ -21,12 +21,16 @@ export function tierOf(places: Placement[], owner: string, other: string): Tier 
   const p = places.find((p) => p.ownerId === owner && p.otherId === other);
   return p ? p.tier : null;
 }
+// Access is CREATOR-controlled: the tier the creator placed the viewer into decides
+// visibility of the creator's inner content. A viewer cannot self-grant access by
+// placing the creator into their own inner circle. (Matches the original app and the
+// seed's reciprocal placements.)
 export function canSeeContent(viewer: string | null, ev: Ev, conns: Connection[], places: Placement[]) {
   if (ev.visibility === 'public') return true;
   if (!viewer) return false;
   if (ev.creatorId === viewer) return true;
   if (!areConnected(conns, ev.creatorId, viewer)) return false;
-  const tier = tierOf(places, viewer, ev.creatorId) || 'orbit';
+  const tier = tierOf(places, ev.creatorId, viewer) || 'orbit';
   if (ev.visibility === 'orbit') return true;
   if (ev.visibility === 'inner') return tier === 'inner';
   return false;
