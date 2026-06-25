@@ -12,3 +12,4 @@ prisma/dev.db
 .wrangler/
 drizzle/seed.sql
 cloudflare-env.d.ts
+tsconfig.tsbuildinfo
