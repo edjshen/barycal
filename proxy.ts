@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const PROTECTED = ['/discover', '/plans', '/regulars', '/you', '/circles'];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const hasSession = req.cookies.has('orbit_session');
   if (PROTECTED.some((p) => pathname === p || pathname.startsWith(p + '/')) && !hasSession) {
