@@ -1,28 +1,29 @@
 /* Account-free page: a shared profile (/u/:handle) or event (/e/:id). View + nudge. */
 const app = document.getElementById('app');
+const BASE = window.ORBIT_BASE || '';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const avatar = (u, size = 'sm') => `<span class="av ${size}" style="background:linear-gradient(135deg,${u.avatar})">${esc(u.initials)}</span>`;
 const timeLabel = (iso) => new Date(iso).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
 const banner = () => `<div class="banner"></div>`;
-const cta = (label) => `<a class="btn solid block" style="margin-top:22px" href="/">${label}</a>
+const cta = (label) => `<a class="btn solid block" style="margin-top:22px" href="${BASE || '/'}">${label}</a>
   <div class="footnote">Orbit — your social calendar is your profile.<br>See when your people are free, and actually make plans.</div>`;
 
 function shell(inner) { app.innerHTML = `<div class="shell"><div class="main">${inner}</div></div>`; }
 
 async function load() {
-  const parts = location.pathname.split('/').filter(Boolean);
+  const parts = location.pathname.slice(BASE.length).split('/').filter(Boolean);
   try {
     if (parts[0] === 'u') return renderProfile(parts[1]);
     if (parts[0] === 'e') return renderEvent(parts[1]);
-    location.href = '/';
+    location.href = BASE + '/';
   } catch (e) {
-    shell(`<div class="empty">This link isn't available.<br><a style="color:var(--accent)" href="/">Go to Orbit →</a></div>`);
+    shell(`<div class="empty">This link isn't available.<br><a style="color:var(--accent)" href="${BASE || '/'}">Go to Orbit →</a></div>`);
   }
 }
 
 async function renderProfile(handle) {
-  const r = await fetch('/api/profile/' + encodeURIComponent(handle));
+  const r = await fetch(BASE + '/api/profile/' + encodeURIComponent(handle));
   if (!r.ok) throw new Error();
   const { user: u, upcoming } = await r.json();
   const chips = (u.scenes || []).map((s) => `<span class="chip">${esc(s)}</span>`).join('');
@@ -36,7 +37,7 @@ async function renderProfile(handle) {
 }
 
 async function renderEvent(id) {
-  const r = await fetch('/api/events/' + encodeURIComponent(id));
+  const r = await fetch(BASE + '/api/events/' + encodeURIComponent(id));
   if (!r.ok) throw new Error();
   const e = await r.json();
   const who = (e.attendees || []).slice(0, 6).map((a) => avatar(a)).join('');
