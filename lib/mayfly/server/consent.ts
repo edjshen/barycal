@@ -13,7 +13,7 @@ import { getMayflyDb, mayflySchema } from '../db/index';
 
 const { mayflyConsents } = mayflySchema;
 
-export const CONSENT_VERSION = 'sms-consent-v1-2026-06-23';
+export const CONSENT_VERSION = 'sms-consent-v2-orbit-2026-06-25';
 
 /** True only for an explicit, affirmative opt-in. */
 export function hasConsent(value: unknown): value is true {

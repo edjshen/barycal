@@ -8,7 +8,7 @@ import { keyToFragment } from '@/lib/mayfly/shared/crypto.js';
 
 /** @param {{ id: string, key: Uint8Array, event?: boolean, desiredExpiresAt?: number|null }} room */
 export function roomUrl(room, origin) {
-  const o = origin || (typeof window !== 'undefined' ? window.location.origin : 'https://plur.nyc');
+  const o = origin || (typeof window !== 'undefined' ? window.location.origin : '');
   return buildRoomUrl(room.id, keyToFragment(room.key), o, {
     event: room.event,
     expiresAt: room.desiredExpiresAt,
