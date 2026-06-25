@@ -9,7 +9,9 @@ import { avatarFor } from '../domain/helpers';
 
 function toHandle(s: string) { return String(s || '').toLowerCase().replace(/[^a-z0-9_]/g, ''); }
 
-export async function login(_prev: unknown, form: FormData) {
+export type AuthState = { error?: string } | null;
+
+export async function login(_prev: AuthState, form: FormData): Promise<AuthState> {
   const handle = toHandle(String(form.get('username')));
   const password = String(form.get('password') || '');
   const u = (await getDb().select().from(users).where(eq(users.handle, handle)).limit(1))[0];
@@ -18,7 +20,7 @@ export async function login(_prev: unknown, form: FormData) {
   redirect('/discover');
 }
 
-export async function register(_prev: unknown, form: FormData) {
+export async function register(_prev: AuthState, form: FormData): Promise<AuthState> {
   const handle = toHandle(String(form.get('username')));
   const password = String(form.get('password') || '');
   const displayName = String(form.get('displayName') || '') || handle;
