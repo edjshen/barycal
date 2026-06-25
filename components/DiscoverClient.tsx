@@ -2,12 +2,15 @@
 import { useState } from 'react';
 import Segmented from './primitives/Segmented';
 import EventCard from './EventCard';
+import WeekGrid from './WeekGrid';
+import MonthGrid from './MonthGrid';
 import { dayLabel } from '@/lib/format';
 
-export default function DiscoverClient({ events, meId }: { events: any[]; meId: string }) {
+export default function DiscoverClient({ events, meId, week, month }: { events: any[]; meId: string; week?: any; month?: any }) {
   const [view, setView] = useState('discover');
   const seg = <Segmented options={[{ value: 'discover', label: 'Discover' }, { value: 'week', label: 'Week' }, { value: 'month', label: 'Month' }]} value={view} onChange={setView} />;
-  if (view === 'week' || view === 'month') return <>{seg}<div className="empty">{view === 'week' ? 'Week' : 'Month'} view coming soon.</div></>;
+  if (view === 'week') return <>{seg}<WeekGrid events={week?.events ?? []} weekStartISO={week?.weekStartISO} /></>;
+  if (view === 'month') return <>{seg}<MonthGrid events={month?.events ?? []} monthISO={month?.monthISO} /></>;
   let last = '';
   return (
     <>
