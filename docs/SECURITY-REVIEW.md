@@ -200,50 +200,45 @@ taken-vs-available response uniform if enumeration matters, add a minimum passwo
 
 ---
 
-## Remediation status (patched on `claude/practical-newton-jbaxit`)
+## Remediation status
 
-All fixes are committed to this branch. Items that change live infrastructure
-(deploying the Edge Function, applying the migration, purging response rows) are
-**staged, not executed** — see the runbook below. The live frontend tracks
-`master`, and the Supabase project is shared with a production app, so those
-steps are intentionally left to a deliberate, owner-approved deploy.
+All fixes are committed to `claude/practical-newton-jbaxit`. The `orbit` Edge
+Function was **redeployed (v3, `verify_jwt:false`)** and the fix verified live;
+`net._http_response` was purged. H1's activation was intentionally **not** done
+(owner chose deploy-without-H1).
 
-| ID | Status | What changed (code) | Owner step to go live |
-|----|--------|---------------------|-----------------------|
-| **C1** | Patched in code | `SECRET` now reads `ORBIT_HMAC_SECRET` → falls back to the auto-injected `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_DB_URL`; throws if absent. No secret in source. | Redeploy the function (rotates the key; existing sessions re-login). |
-| **H1** | Mechanism + migration staged | Function connects with `connection: { role: ORBIT_DB_ROLE }` when set; `supabase/migrations/*_orbit_least_privilege_role.sql` creates a `orbit`-only role. | Apply the migration, set `ORBIT_DB_ROLE=orbit_app`, redeploy. (Or move Orbit to its own project.) |
-| **M1** | **Fully patched** | `esc()` now also escapes `'`; the three exploitable `onclick` sinks (`makeStanding`, `copyLink`) were converted to `data-*` attributes read via `this.dataset`. | Lands for users once the frontend redeploys (Pages on `master`) and/or `ORBIT_ASSET_REF` is bumped. |
-| **M2** | Patched in code | Token lifetime 30d → 7d; local server no longer uses a predictable default `JWT_SECRET` (random ephemeral + warning). | Redeploy. Revocation (a session/`jti` store) remains future work. |
-| **L1** | Patched in code | CORS is now an allow-list via `ORBIT_ALLOWED_ORIGINS` (defaults to `*`, no behavior change). | Set the env var to your origins if you want to restrict. |
-| **L2** | Live-data only | (no code) Login responses with tokens persist in `net._http_response`. | `delete from net._http_response where content::text ilike '%"handle":"ed"%';` (orbit rows only). |
-| **L3** | Patched in code | Best-effort per-isolate auth rate-limit (429) + 8-char minimum password on register. | Redeploy. For hard limits, back the throttle with a shared store. |
+| ID | Status | Detail |
+|----|--------|--------|
+| **C1** | ✅ **Fixed live + verified** | `SECRET` now reads `ORBIT_HMAC_SECRET` → falls back to the auto-injected `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_DB_URL`; no secret in source. **Verified:** a token forged with the old hardcoded secret is now rejected (`/api/me` → 401), and a fresh login still works (200). |
+| **H1** | ⏸ **Staged (mechanism live, not activated)** | Function honors `ORBIT_DB_ROLE` (drops to that role when set); `supabase/migrations/*_orbit_least_privilege_role.sql` creates the `orbit`-only role. To activate: apply the migration, set `ORBIT_DB_ROLE=orbit_app`, redeploy. (Or move Orbit to its own project.) |
+| **M1** | ✅ **Fixed in code; served fixed via the function** | `esc()` escapes `'`; the exploitable `makeStanding`/`copyLink` `onclick` sinks now pass data via `data-*` + `this.dataset`. **Verified:** the function serves the fixed `app.js` (contains `dataset.name`). Residual: the Pages/CF frontend on `master` updates only on a `master` merge (this branch can't push master). |
+| **M2** | ✅ **Fixed live** | Token lifetime 30d → 7d; local server drops the predictable default `JWT_SECRET`. Revocation (session/`jti` store) remains future work. |
+| **L1** | ✅ **Fixed live** | CORS is an allow-list via `ORBIT_ALLOWED_ORIGINS` (defaults to `*`, behavior unchanged until set). |
+| **L2** | ✅ **Remediated live** | All orbit token rows purged from `net._http_response` (0 token rows remain). |
+| **L3** | ✅ **Fixed live** | Best-effort per-isolate auth rate-limit (429) + 8-char min password on register. Hard limits need a shared store. |
 
-> **Important — M1 inline-handler subtlety:** HTML-entity-escaping a `'` (`&#39;`)
-> is **not** sufficient inside an inline `onclick`, because the browser HTML-decodes
-> the attribute back to `'` before the JS runs. The real fix is to keep user data
-> out of the JS-string context entirely — hence the `data-*` + `this.dataset`
-> rewrite. The `esc()` change is defense-in-depth for text/attribute contexts.
+> **M1 inline-handler subtlety:** HTML-entity-escaping `'` (`&#39;`) is **not**
+> sufficient inside an inline `onclick` — the browser HTML-decodes the attribute
+> back to `'` before the JS runs. The real fix keeps user data out of the
+> JS-string context (the `data-*` + `this.dataset` rewrite); the `esc()` change is
+> defense-in-depth for text/attribute contexts.
 
-### Deploy runbook (owner)
+> **Deploy note:** the deployed v3 source is functionally identical to this branch's
+> `index.ts`; it differs only by two redundant parentheses in the `placements` tier
+> check (`!([...]).includes()` vs `![...].includes()`) — a no-op by operator
+> precedence. To make the deployed artifact byte-identical, redeploy from the repo:
+> `supabase functions deploy orbit --project-ref bpqtjfdiwifvrnkzldwg`.
+
+### Remaining owner steps (optional / by choice)
 
 ```bash
-# 1. (C1) optional but recommended: set a dedicated signing secret
+# (C1, optional) replace the service-role-key fallback with a dedicated secret:
 supabase secrets set ORBIT_HMAC_SECRET="$(openssl rand -hex 32)" --project-ref bpqtjfdiwifvrnkzldwg
 
-# 2. (H1) create the least-privilege role, then point the function at it
-#    (run the migration via the SQL editor or supabase db push), then:
+# (H1, when ready) apply migration via SQL editor / `supabase db push`, then:
 supabase secrets set ORBIT_DB_ROLE=orbit_app --project-ref bpqtjfdiwifvrnkzldwg
-
-# 3. redeploy the function (picks up new code + secrets; rotates tokens)
 supabase functions deploy orbit --project-ref bpqtjfdiwifvrnkzldwg
 
-# 4. (M1) frontend: merge this branch to master so Pages/CF rebuild, OR pin the
-#    function's asset ref at the fixed commit:
-supabase secrets set ORBIT_ASSET_REF=<this-branch-commit-sha> --project-ref bpqtjfdiwifvrnkzldwg
-
-# 5. (L2) purge lingering demo tokens from the response cache
-#    delete from net._http_response where content::text ilike '%"handle":"ed"%';
+# (M1 for Pages/CF users) merge this branch to master so the hosted frontend rebuilds.
 ```
-
-C1 stays live-exploitable until step 3 runs — it's the priority.
 
