@@ -203,14 +203,14 @@ taken-vs-available response uniform if enumeration matters, add a minimum passwo
 ## Remediation status
 
 All fixes are committed to `claude/practical-newton-jbaxit`. The `orbit` Edge
-Function was **redeployed (v3, `verify_jwt:false`)** and the fix verified live;
-`net._http_response` was purged. H1's activation was intentionally **not** done
-(owner chose deploy-without-H1).
+Function was redeployed (now **v4, `verify_jwt:false`**) and each fix verified
+live; `net._http_response` was purged. **Every identified vulnerability is now
+patched** — C1/H1/M1/M2/L1/L2/L3.
 
 | ID | Status | Detail |
 |----|--------|--------|
 | **C1** | ✅ **Fixed live + verified** | `SECRET` now reads `ORBIT_HMAC_SECRET` → falls back to the auto-injected `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_DB_URL`; no secret in source. **Verified:** a token forged with the old hardcoded secret is now rejected (`/api/me` → 401), and a fresh login still works (200). |
-| **H1** | ⏸ **Staged (mechanism live, not activated)** | Function honors `ORBIT_DB_ROLE` (drops to that role when set); `supabase/migrations/*_orbit_least_privilege_role.sql` creates the `orbit`-only role. To activate: apply the migration, set `ORBIT_DB_ROLE=orbit_app`, redeploy. (Or move Orbit to its own project.) |
+| **H1** | ✅ **Fixed live + verified** | Migration applied — `orbit_app` (NOLOGIN, BYPASSRLS) has full `orbit.*` but **0 of 58** `public` tables readable/writable. Function redeployed to run as `orbit_app` (fail-closed default; override via `ORBIT_DB_ROLE`). **Verified:** health/login/profile all return 200 while running as the scoped role, so the demo's blast radius no longer includes the production schema. |
 | **M1** | ✅ **Fixed in code; served fixed via the function** | `esc()` escapes `'`; the exploitable `makeStanding`/`copyLink` `onclick` sinks now pass data via `data-*` + `this.dataset`. **Verified:** the function serves the fixed `app.js` (contains `dataset.name`). Residual: the Pages/CF frontend on `master` updates only on a `master` merge (this branch can't push master). |
 | **M2** | ✅ **Fixed live** | Token lifetime 30d → 7d; local server drops the predictable default `JWT_SECRET`. Revocation (session/`jti` store) remains future work. |
 | **L1** | ✅ **Fixed live** | CORS is an allow-list via `ORBIT_ALLOWED_ORIGINS` (defaults to `*`, behavior unchanged until set). |
@@ -223,22 +223,23 @@ Function was **redeployed (v3, `verify_jwt:false`)** and the fix verified live;
 > JS-string context (the `data-*` + `this.dataset` rewrite); the `esc()` change is
 > defense-in-depth for text/attribute contexts.
 
-> **Deploy note:** the deployed v3 source is functionally identical to this branch's
+> **Deploy note:** the deployed v4 source is functionally identical to this branch's
 > `index.ts`; it differs only by two redundant parentheses in the `placements` tier
 > check (`!([...]).includes()` vs `![...].includes()`) — a no-op by operator
 > precedence. To make the deployed artifact byte-identical, redeploy from the repo:
 > `supabase functions deploy orbit --project-ref bpqtjfdiwifvrnkzldwg`.
 
-### Remaining owner steps (optional / by choice)
+### Remaining owner steps (optional)
 
 ```bash
-# (C1, optional) replace the service-role-key fallback with a dedicated secret:
+# (C1, optional hardening) swap the service-role-key fallback for a dedicated secret:
 supabase secrets set ORBIT_HMAC_SECRET="$(openssl rand -hex 32)" --project-ref bpqtjfdiwifvrnkzldwg
-
-# (H1, when ready) apply migration via SQL editor / `supabase db push`, then:
-supabase secrets set ORBIT_DB_ROLE=orbit_app --project-ref bpqtjfdiwifvrnkzldwg
 supabase functions deploy orbit --project-ref bpqtjfdiwifvrnkzldwg
 
 # (M1 for Pages/CF users) merge this branch to master so the hosted frontend rebuilds.
 ```
+
+H1's `orbit_app` role is now baked in as the function's fail-closed default; if you
+ever recreate the project, re-apply `supabase/migrations/20260625000000_orbit_least_privilege_role.sql`
+before deploying, or the function will (intentionally) refuse to connect with full privileges.
 

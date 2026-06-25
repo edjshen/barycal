@@ -13,10 +13,12 @@ const SECRET = Deno.env.get("ORBIT_HMAC_SECRET")
   || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
   || Deno.env.get("SUPABASE_DB_URL");
 if (!SECRET) throw new Error("No signing secret available (set ORBIT_HMAC_SECRET)");
-// H1: optional least-privilege DB role. Set ORBIT_DB_ROLE=orbit_app and apply
-// the orbit_least_privilege_role migration to cap blast radius to the orbit
-// schema. Defaults to the existing connection (no behavior change) when unset.
-const DB_ROLE = Deno.env.get("ORBIT_DB_ROLE");
+// H1: drop to a least-privilege DB role so a bug here can't reach the rest of the
+// shared project. Requires the orbit_least_privilege_role migration applied
+// (creates `orbit_app`, scoped to the orbit schema). Override via ORBIT_DB_ROLE;
+// the fail-closed default is orbit_app — the function errors rather than run with
+// full privileges if the role is somehow missing.
+const DB_ROLE = Deno.env.get("ORBIT_DB_ROLE") || "orbit_app";
 const sql = postgres(Deno.env.get("SUPABASE_DB_URL"), { prepare: false, ...(DB_ROLE ? { connection: { role: DB_ROLE } } : {}) });
 // L1: CORS allow-list — comma-separated origins, or "*" (default, unchanged).
 const ALLOWED_ORIGINS = (Deno.env.get("ORBIT_ALLOWED_ORIGINS") || "*").split(",").map((s) => s.trim()).filter(Boolean);

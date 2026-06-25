@@ -30,5 +30,8 @@ alter default privileges in schema orbit grant usage, select on sequences to orb
 -- Belt and suspenders: no reach into the rest of the project.
 revoke all on schema public from orbit_app;
 
--- Allow the connecting role to drop into orbit_app for the session.
+-- Allow the function's connecting role(s) to drop into orbit_app for the session.
+-- (Supabase edge functions use SUPABASE_DB_URL = postgres; service_role granted
+-- too as a safety margin in case the connection role differs.)
 grant orbit_app to postgres;
+grant orbit_app to service_role;
