@@ -6,4 +6,5 @@ data/
 *.log
 dist/
 build/
+_site/
 prisma/dev.db
