@@ -13,7 +13,8 @@
       "database_name": "orbit-db",
       // PLACEHOLDER for local dev. Replace with the real id from
       // `wrangler d1 create orbit-db` before any --remote use / deploy (Milestone M6).
-      "database_id": "00000000-0000-0000-0000-000000000000"
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle"
     }
   ],
   "observability": { "enabled": true }
