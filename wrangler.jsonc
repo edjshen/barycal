@@ -1,0 +1,16 @@
+{
+  // Cloudflare Workers config for the Orbit static SPA (Connect-to-Git build).
+  // Serves the prebuilt assets in public/ via a small router Worker; data/auth
+  // run on the Supabase 'orbit' Edge Function (window.ORBIT_API in the HTML).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "social-cal",
+  "compatibility_date": "2026-06-25",
+  "main": "worker/index.js",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "public",
+    "binding": "ASSETS"
+  }
+}
