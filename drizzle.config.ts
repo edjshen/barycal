@@ -5,6 +5,6 @@ import { defineConfig } from 'drizzle-kit';
 // apply`, not drizzle-kit. Add them only if adopting drizzle-kit push/studio.
 export default defineConfig({
   dialect: 'sqlite',
-  schema: './lib/db/schema.ts',
+  schema: ['./lib/db/schema.ts', './lib/mayfly/db/schema.ts'],
   out: './drizzle',
 });
