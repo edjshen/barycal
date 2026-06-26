@@ -4,12 +4,14 @@ import { eq } from 'drizzle-orm';
 import { getDb } from '../db';
 import { connections, placements } from '../db/schema';
 import { requireUserId } from '../auth/session';
-import { getGraphContext } from '../db/queries';
+import { getGraphContext, getUserById } from '../db/queries';
 import { connectionStatus, areConnected } from '../domain/visibility';
 
 export async function addPerson(toId: string) {
   const uid = await requireUserId();
-  if (toId === uid) throw new Error('Invalid user');
+  if (typeof toId !== 'string' || toId === uid) throw new Error('Invalid user');
+  // Verify the target exists (don't rely solely on the FK) before inserting.
+  if (!(await getUserById(toId))) throw new Error('Invalid user');
   const ctx = await getGraphContext();
   if (connectionStatus(ctx.conns, uid, toId) !== 'none') return;
   await getDb().insert(connections).values({ id: crypto.randomUUID(), aId: uid, bId: toId, status: 'pending', requestedBy: uid, createdAt: new Date().toISOString() });

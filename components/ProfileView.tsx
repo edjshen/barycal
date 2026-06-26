@@ -23,14 +23,16 @@ export default function ProfileView({ data }: { data: ProfileData }) {
   const [dn, setDn] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || '');
   const [scenes, setScenes] = useState((user.scenes || []).join(', '));
-  const [ghost, setGhost] = useState(false);
+  // Initialize from the user's CURRENT ghost state — hardcoding false here let a
+  // ghost user silently un-ghost themselves by saving any other edit.
+  const [ghost, setGhost] = useState(!!user.ghost);
   const [, startTransition] = useTransition();
 
   function openEdit() {
     setDn(user.displayName);
     setBio(user.bio || '');
     setScenes((user.scenes || []).join(', '));
-    setGhost(false);
+    setGhost(!!user.ghost);
     setSheetOpen(true);
   }
 

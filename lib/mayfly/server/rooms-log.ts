@@ -27,6 +27,9 @@ export async function logRoomCreated({
 }) {
   const db = getMayflyDb();
   const now = new Date().toISOString();
+  // roomId is a random 16-byte value, so a real collision is astronomically
+  // unlikely. First-writer-wins (do nothing on conflict) means even a re-issued
+  // create can't rewrite an existing room's creator/mode/expiry.
   await db
     .insert(mayflyRooms)
     .values({
@@ -39,15 +42,7 @@ export async function logRoomCreated({
       createdAt: now,
       expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
     })
-    .onConflictDoUpdate({
-      target: mayflyRooms.roomId,
-      set: {
-        threeWords: words ?? null,
-        mode: mode ?? 'sealed',
-        creatorPhone: creatorPhone ?? null,
-        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
-      },
-    });
+    .onConflictDoNothing();
 }
 
 /** Upsert metadata for a public per-event room on first join (no creator). */
@@ -64,6 +59,11 @@ export async function upsertEventRoom({
 }) {
   const db = getMayflyDb();
   const now = new Date().toISOString();
+  // Event rooms are OPEN-join (no phone gate), and the registry row's metadata
+  // (slug, words, expiry) is deterministic from the event — every honest joiner
+  // sends identical values. So the first joiner establishes the row and later
+  // joiners must NOT be able to rewrite it: do nothing on conflict. This stops a
+  // malicious open-joiner from repointing an event room's slug/expiry.
   await db
     .insert(mayflyRooms)
     .values({
@@ -76,14 +76,7 @@ export async function upsertEventRoom({
       createdAt: now,
       expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
     })
-    .onConflictDoUpdate({
-      target: mayflyRooms.roomId,
-      set: {
-        threeWords: words ?? null,
-        eventSlug: eventSlug ?? null,
-        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
-      },
-    });
+    .onConflictDoNothing();
 }
 
 /** Log a participant joining a room (one row per profile per room). */

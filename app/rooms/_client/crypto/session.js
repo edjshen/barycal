@@ -35,8 +35,9 @@ export function createRoomSession({ roomId, key, profile, nodeId }) {
     const hlc = clock.now();
     const kind = body.kind;
     const ciphertext = encryptString(JSON.stringify(body), key);
-    const sigBytes = sign(envelopeBytes({ roomId, profilePub, hlc, kind, ciphertext }), secretKey);
+    // id is generated BEFORE signing so the signature binds it (see envelopeBytes).
     const id = nanoid(21);
+    const sigBytes = sign(envelopeBytes({ roomId, id, profilePub, hlc, kind, ciphertext }), secretKey);
     const frame = {
       type: 'publish',
       id,
@@ -55,7 +56,6 @@ export function createRoomSession({ roomId, key, profile, nodeId }) {
    * @returns {{ ok: true, body: object } | { ok: false, reason: string }}
    */
   function verifyAndDecrypt(event) {
-    clock.observe(event.hlc);
     let senderPub;
     try {
       senderPub = fromB64(event.profilePub);
@@ -68,6 +68,7 @@ export function createRoomSession({ roomId, key, profile, nodeId }) {
         fromB64(event.sig),
         envelopeBytes({
           roomId,
+          id: event.id,
           profilePub: event.profilePub,
           hlc: event.hlc,
           kind: event.kind,
@@ -79,6 +80,11 @@ export function createRoomSession({ roomId, key, profile, nodeId }) {
       ok = false;
     }
     if (!ok) return { ok: false, reason: 'bad-sig' };
+
+    // Advance our logical clock ONLY on an authenticated remote stamp. Observing
+    // before verification let an outsider (who knows only the roomId) inject a
+    // bad-sig frame with a huge wallMillis and permanently poison our clock.
+    clock.observe(event.hlc);
 
     try {
       const body = JSON.parse(decryptString(event.ciphertext, key));

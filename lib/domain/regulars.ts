@@ -3,13 +3,15 @@ import { ATTEND } from './types';
 import { publicUser } from './helpers';
 
 export function computeRegulars(me: string, events: OrbitEvent[], attendance: Attendance[], users: User[]) {
+  // A ghost never surfaces as someone else's Regular (they chose to disappear).
+  const ghostIds = new Set(users.filter((u) => u.ghost && u.id !== me).map((u) => u.id));
   const myEventIds = attendance.filter((a) => a.userId === me && ATTEND.includes(a.rsvp)).map((a) => a.eventId);
   const tally = new Map<string, { count: number; last: string | null; contexts: Set<string> }>();
   for (const eid of myEventIds) {
     const ev = events.find((e) => e.id === eid);
     if (!ev) continue;
     for (const a of attendance.filter((x) => x.eventId === eid)) {
-      if (a.userId === me || !ATTEND.includes(a.rsvp)) continue;
+      if (a.userId === me || ghostIds.has(a.userId) || !ATTEND.includes(a.rsvp)) continue;
       const t = tally.get(a.userId) || { count: 0, last: null as string | null, contexts: new Set<string>() };
       t.count += 1;
       if (!t.last || new Date(ev.startTime) > new Date(t.last)) t.last = ev.startTime;

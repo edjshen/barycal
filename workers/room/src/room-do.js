@@ -24,6 +24,36 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_TTL_MS = 60 * 60 * 1000; // 1 hour
 const MAX_TTL_MS = 7 * DAY_MS; // 7 days
 
+// Abuse caps. The relay never decrypts, so it bounds floods by rate + count, not
+// content. A client that learns a roomId could otherwise spam the append-only
+// log (growing DO storage + fanning out to every peer) until the 24h self-
+// destruct. These two layers bound that: an in-memory per-socket rate limit
+// (holds while the DO is resident during an active flood) plus a durable cap on
+// total stored rows (survives hibernation). Both are well above real chat use.
+const MAX_LOG_ROWS = 20000; // durable per-room storage backstop
+const FLOOD_WINDOW_MS = 10 * 1000; // per-socket publish window
+const FLOOD_MAX = 40; // max publishes per socket per window
+// Concurrent sockets per room. The per-socket flood budget is multiplied by the
+// socket count, and every publish fans out to all sockets (O(sockets) on a
+// single-threaded DO), so an unbounded socket count is itself a DoS vector.
+const MAX_SOCKETS = 128;
+// hello triggers a full backlog replay; cap replays per socket per window so it
+// can't be spammed into an egress/CPU amplifier.
+const HELLO_MAX = 6;
+
+// Durable (SQLite-backed) per-ROOM rate caps. The in-memory per-socket caps above
+// reset when the DO hibernates (~10s idle) and don't span sockets, so a paced or
+// reconnecting attacker could evade them. These live in the meta table: they
+// survive hibernation and are shared across all of the room's sockets. All are
+// far above real chat use, so legitimate clients never hit them.
+const RATE_WINDOW_MS = 60 * 1000;
+const PUB_MAX_PER_MIN = 600; // new messages stored per room per minute
+// Backlog-replay egress is bounded by ROWS streamed per room per minute (not just
+// replay count): each hello can stream up to the whole log, so a reconnecting
+// attacker re-requesting seq>0 is the real amplifier. Generous vs. real joins.
+const REPLAY_ROWS_PER_MIN = 120000;
+const PING_MAX_PER_MIN = 1200; // pings answered per room per minute
+
 export class RoomDO extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
@@ -57,6 +87,28 @@ export class RoomDO extends DurableObject {
 
   setMeta(k, v) {
     this.sql.exec('INSERT OR REPLACE INTO meta (k, v) VALUES (?, ?)', k, v);
+  }
+
+  /**
+   * Durable fixed-window rate gate keyed by `name` (meta rows `<name>_t`/`_n`).
+   * Survives hibernation and is shared across the room's sockets; the single-
+   * threaded DO serializes access, so the read-modify-write is atomic. Returns
+   * false once `max` is exceeded within `windowMs`.
+   */
+  durableConsume(name, amount, max, windowMs) {
+    const now = Date.now();
+    const t = this.getMeta(name + '_t');
+    if (t === null || now - t >= windowMs) {
+      this.setMeta(name + '_t', now);
+      this.setMeta(name + '_n', amount);
+      return amount <= max;
+    }
+    const n = (this.getMeta(name + '_n') || 0) + amount;
+    this.setMeta(name + '_n', n);
+    return n <= max;
+  }
+  durableAllow(name, max, windowMs) {
+    return this.durableConsume(name, 1, max, windowMs);
   }
 
   latestSeq() {
@@ -110,6 +162,11 @@ export class RoomDO extends DurableObject {
     if (Date.now() >= (this.getMeta('expiresAt') ?? 0)) {
       return new Response('expired', { status: 410 });
     }
+    // Cap concurrent sockets per room: bounds fan-out amplification and the
+    // aggregate write rate (sockets × per-socket flood budget).
+    if (this.ctx.getWebSockets().length >= MAX_SOCKETS) {
+      return new Response('room is full', { status: 503 });
+    }
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
     this.ctx.acceptWebSocket(server);
@@ -122,11 +179,26 @@ export class RoomDO extends DurableObject {
     if (!frame) return; // drop malformed frames silently
 
     if (frame.type === 'ping') {
+      // Even pings cost a JSON.stringify+send on the single-threaded DO; cap them
+      // durably so a resident socket can't spam them as a CPU/duration DoS.
+      if (!this.durableAllow('pingrate', PING_MAX_PER_MIN, RATE_WINDOW_MS)) return;
       ws.send(JSON.stringify({ type: 'pong', serverNow: Date.now() }));
       return;
     }
 
     if (frame.type === 'hello') {
+      // Throttle hello (each triggers a full backlog replay) per socket so it
+      // can't be spammed into an egress/CPU amplifier. A legit client sends one
+      // per connection; a reconnect is a new socket with a fresh budget.
+      if (!this.hellos) this.hellos = new Map();
+      const hnow = Date.now();
+      let hb = this.hellos.get(ws);
+      if (!hb || hnow - hb.windowStart >= FLOOD_WINDOW_MS) {
+        hb = { count: 0, windowStart: hnow };
+        this.hellos.set(ws, hb);
+      }
+      if (++hb.count > HELLO_MAX) return; // ignore excess hello spam
+
       // First opener may set a custom lifetime (e.g. event room ends with the
       // event). Only honored once, before any messages exist.
       if (frame.requestedExpiresAt != null) {
@@ -143,21 +215,50 @@ export class RoomDO extends DurableObject {
           latestSeq: this.latestSeq(),
         })
       );
+      // Durably bound backlog-replay EGRESS by ROWS streamed per room (not just
+      // replay count). seq is dense (no deletes until self-destruct), so
+      // latestSeq-from is the exact pending row count. On exceed, skip the replay
+      // but still send backlog_done so a legit client isn't wedged — one hello per
+      // socket never approaches the budget.
       const from = frame.resumeFromSeq ?? 0;
-      for (const row of this.sql.exec('SELECT * FROM log WHERE seq > ? ORDER BY seq ASC', from)) {
-        ws.send(JSON.stringify(this.rowToEvent(row)));
+      const pending = Math.max(0, this.latestSeq() - from);
+      if (pending > 0 && this.durableConsume('replayrows', pending, REPLAY_ROWS_PER_MIN, RATE_WINDOW_MS)) {
+        for (const row of this.sql.exec('SELECT * FROM log WHERE seq > ? ORDER BY seq ASC', from)) {
+          ws.send(JSON.stringify(this.rowToEvent(row)));
+        }
       }
       ws.send(JSON.stringify({ type: 'backlog_done', latestSeq: this.latestSeq() }));
       return;
     }
 
     if (frame.type === 'publish') {
+      // Per-connection flood control (best-effort; the DO is single-threaded and
+      // stays resident during an active flood). The durable row cap below is the
+      // backstop that survives hibernation.
+      if (!this.floods) this.floods = new Map();
+      const fnow = Date.now();
+      let fb = this.floods.get(ws);
+      if (!fb || fnow - fb.windowStart >= FLOOD_WINDOW_MS) {
+        fb = { count: 0, windowStart: fnow };
+        this.floods.set(ws, fb);
+      }
+      if (++fb.count > FLOOD_MAX) return; // drop silently; client backs off
+
       // Idempotent: a retransmit of the same id returns the original ack/seq.
       const existing = this.sql.exec('SELECT seq FROM log WHERE id = ?', frame.id).toArray();
       if (existing.length > 0) {
         ws.send(JSON.stringify({ type: 'ack', id: frame.id, seq: existing[0].seq }));
         return;
       }
+      // Durable per-room publish rate — survives hibernation/reconnects, unlike
+      // the per-socket flood counter above, so a paced attacker can't fill the
+      // log or sustain fan-out by reconnecting.
+      if (!this.durableAllow('pubrate', PUB_MAX_PER_MIN, RATE_WINDOW_MS)) return;
+      // Durable backstop: refuse new writes once the room is at capacity so a
+      // flood can't grow storage without bound before self-destruct.
+      const stored = this.sql.exec('SELECT COUNT(*) AS c FROM log').one().c;
+      if (stored >= MAX_LOG_ROWS) return;
+
       this.sql.exec(
         'INSERT INTO log (id, hlc, kind, ciphertext, sig, profile_pub) VALUES (?, ?, ?, ?, ?, ?)',
         frame.id,
@@ -194,6 +295,8 @@ export class RoomDO extends DurableObject {
   }
 
   async webSocketClose(ws) {
+    this.floods?.delete(ws);
+    this.hellos?.delete(ws);
     try {
       ws.close();
     } catch {
@@ -202,6 +305,8 @@ export class RoomDO extends DurableObject {
   }
 
   async webSocketError(ws) {
+    this.floods?.delete(ws);
+    this.hellos?.delete(ws);
     try {
       ws.close();
     } catch {
