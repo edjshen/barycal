@@ -1,6 +1,7 @@
-# Mayfly room relay — a SEPARATE Cloudflare Worker, deployed independently of
-# the plur.nyc Next site (which is the OpenNext worker `plur-nyc`). This relay
-# only ever handles ciphertext + routing metadata.
+# Orbit room relay — a SEPARATE Cloudflare Worker, deployed independently of the
+# Orbit Next site (the OpenNext worker `orbit`). Distinct from plur.nyc's
+# `mayfly-room` relay so the two projects share no live infrastructure. This
+# relay only ever handles ciphertext + routing metadata.
 #
 # Deploy (from this directory):
 #   npm install
@@ -11,10 +12,10 @@
 # discovery walks UP the tree and would otherwise pick the repo-root
 # wrangler.jsonc (the Next/OpenNext worker). The npm scripts pin `-c
 # ./wrangler.toml`. `wrangler deploy` prints the *.workers.dev URL — put it in
-# the Next app's NEXT_PUBLIC_ROOM_API_BASE env. Later attach room.plur.nyc as a
-# custom domain.
+# the Next app's NEXT_PUBLIC_ROOM_API_BASE env. Later attach room.<orbit-domain>
+# as a custom domain.
 
-name = "mayfly-room"
+name = "orbit-room"
 main = "src/worker.js"
 # Initial production deploy: 2026-06-23 (account worker/cron caps cleared; retry).
 # Pin the account so CI deploys land on the same account as the main site
@@ -26,11 +27,11 @@ account_id = "1fb5ac4e609c1d4f4b9171e62d5127c1"
 compatibility_date = "2025-06-01"
 
 # Page origins allowed to open WebSocket upgrades / hit /health with CORS.
-# Comma-separated. Read at request time in src/worker.js. Override per-env as
-# needed; add room.plur.nyc's PAGE origin (https://plur.nyc) — not the worker
-# host — when launching.
+# Comma-separated. Read at request time in src/worker.js. Add Orbit's PAGE
+# origin (the app's workers.dev host, or its custom domain once attached) — not
+# this relay's host. localhost:3000 covers `next dev`.
 [vars]
-ALLOWED_ORIGINS = "https://plur.nyc,https://www.plur.nyc,https://mysettimes.com,http://localhost:3000"
+ALLOWED_ORIGINS = "https://orbit.junting-mp3.workers.dev,http://localhost:3000"
 
 [[durable_objects.bindings]]
 name = "ROOM"
