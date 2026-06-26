@@ -7,20 +7,26 @@ import { requireUserId } from '../auth/session';
 import { getEventById, getAllConnections, getAllPlacements } from '../db/queries';
 import { canSeeContent } from '../domain/visibility';
 import { EVENT_TYPES } from '../domain/types';
+import { clampStr, oneOf, toISOOrThrow, LIMITS } from '../validate';
+
+const VIS = ['inner', 'orbit', 'public'] as const;
+const RSVPS = ['going', 'down', 'maybe', 'cant'] as const;
 
 export async function createEvent(input: { type: string; title: string; location?: string; startTime: string; endTime?: string | null; recurring?: 'weekly' | null; visibility: string; expiresAt?: string | null; }) {
   const uid = await requireUserId();
-  if (!input.title || !input.startTime) throw new Error('Title and start time required');
+  const title = clampStr(input.title, LIMITS.title).trim();
+  if (!title || !input.startTime) throw new Error('Title and start time required');
   const id = crypto.randomUUID(); const nowISO = new Date().toISOString();
   await getDb().insert(events).values({
     id, creatorId: uid,
-    type: (EVENT_TYPES as string[]).includes(input.type) ? (input.type as any) : 'event',
-    title: input.title, description: '', location: input.location || '',
-    startTime: new Date(input.startTime).toISOString(),
-    endTime: input.endTime ? new Date(input.endTime).toISOString() : null,
-    recurring: input.recurring || null,
-    visibility: (['inner','orbit','public'].includes(input.visibility) ? input.visibility : 'inner') as any,
-    expiresAt: input.expiresAt ? new Date(input.expiresAt).toISOString() : null, createdAt: nowISO,
+    type: oneOf(input.type, EVENT_TYPES, 'event'),
+    title, description: '', location: clampStr(input.location, LIMITS.location),
+    startTime: toISOOrThrow(input.startTime, 'start time'),
+    endTime: input.endTime ? toISOOrThrow(input.endTime, 'end time') : null,
+    recurring: input.recurring === 'weekly' ? 'weekly' : null,
+    visibility: oneOf(input.visibility, VIS, 'inner'),
+    expiresAt: input.expiresAt ? toISOOrThrow(input.expiresAt, 'expiry') : null,
+    createdAt: nowISO,
   });
   await getDb().insert(attendance).values({ id: crypto.randomUUID(), eventId: id, userId: uid, rsvp: 'going', createdAt: nowISO });
   revalidatePath('/plans'); revalidatePath('/discover'); return { id };
@@ -28,6 +34,7 @@ export async function createEvent(input: { type: string; title: string; location
 
 export async function setRsvp(eventId: string, rsvp: 'going' | 'down' | 'maybe' | 'cant') {
   const uid = await requireUserId();
+  if (typeof eventId !== 'string' || !(RSVPS as readonly string[]).includes(rsvp)) throw new Error('Bad request');
   const ev = await getEventById(eventId);
   if (!ev) throw new Error('Not found');
   const [conns, places] = [await getAllConnections(), await getAllPlacements()];
@@ -40,6 +47,7 @@ export async function setRsvp(eventId: string, rsvp: 'going' | 'down' | 'maybe' 
 
 export async function deleteEvent(eventId: string) {
   const uid = await requireUserId();
+  if (typeof eventId !== 'string') throw new Error('Bad request');
   const ev = await getEventById(eventId);
   if (!ev || ev.creatorId !== uid) throw new Error('Not allowed');
   await getDb().delete(attendance).where(eq(attendance.eventId, eventId));

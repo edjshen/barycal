@@ -11,9 +11,11 @@ export default async function DiscoverPage() {
   const ctx = await getGraphContext();
   const from = startOfToday(); const to = new Date(from); to.setDate(to.getDate() + 7);
   const conns = myConnectionIds(ctx.conns, meId);
+  // Ghost users disappear from others' discovery (their own view still shows them).
+  const ghostIds = new Set(ctx.users.filter((u) => u.ghost && u.id !== meId).map((u) => u.id));
   const all = await getEventsBetween(from.toISOString(), to.toISOString());
   const events = all
-    .filter((ev) => notExpired(ev) && (ev.creatorId === meId || conns.has(ev.creatorId) || ev.visibility === 'public') && canSeeContent(meId, ev, ctx.conns, ctx.places))
+    .filter((ev) => notExpired(ev) && !ghostIds.has(ev.creatorId) && (ev.creatorId === meId || conns.has(ev.creatorId) || ev.visibility === 'public') && canSeeContent(meId, ev, ctx.conns, ctx.places))
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
     .map((ev) => enrich(ev, meId, ctx));
 

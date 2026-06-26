@@ -6,8 +6,7 @@
  */
 import { checkCode, isVerifyConfigured, isOtpBypassAllowed } from './twilio-verify';
 import {
-  checkServerRateLimit,
-  recordServerRateLimitHit,
+  consumeServerRateLimit,
   clientIpKey,
   hashedRateLimitKey,
   rateLimitResponse,
@@ -25,13 +24,12 @@ export async function consumeRateLimit(
   const keys: string[] = [clientIpKey(request)];
   if (phone) keys.push(await hashedRateLimitKey('phone', phone));
   try {
+    // Atomically count one hit per key; reject on the first key over its limit.
+    // (A rejected request may still cost an earlier key a hit — that's the safe
+    // direction under abuse.)
     for (const key of keys) {
-      const check = await checkServerRateLimit({ scope, key, max, windowMs });
-      if (!check.ok) return rateLimitResponse(TOO_MANY, check);
-    }
-    for (const key of keys) {
-      const consume = await recordServerRateLimitHit({ scope, key, max, windowMs });
-      if (!consume.ok) return rateLimitResponse(TOO_MANY, consume);
+      const r = await consumeServerRateLimit({ scope, key, max, windowMs });
+      if (!r.ok) return rateLimitResponse(TOO_MANY, r);
     }
   } catch (err) {
     console.error(`[rooms ${scope}] rate limit failed:`, (err as Error)?.message);

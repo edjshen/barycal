@@ -15,9 +15,14 @@ export async function hashPassword(password: string): Promise<string> {
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [saltB64, hashB64] = stored.split('$');
   if (!saltB64 || !hashB64) return false;
-  const hash = scrypt(enc(password), unb64(saltB64), { N, r, p, dkLen });
-  const a = b64(hash), b = hashB64;
-  if (a.length !== b.length) return false;
-  let diff = 0; for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
+  try {
+    const hash = scrypt(enc(password), unb64(saltB64), { N, r, p, dkLen });
+    const a = b64(hash), b = hashB64;
+    if (a.length !== b.length) return false;
+    let diff = 0; for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return diff === 0;
+  } catch {
+    // Malformed stored hash (e.g. bad base64) → reject rather than throw a 500.
+    return false;
+  }
 }

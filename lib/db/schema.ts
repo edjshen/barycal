@@ -58,6 +58,18 @@ export const attendance = sqliteTable('attendance', {
   createdAt: text('created_at').notNull(),
 }, (t) => ({ byEvent: index('attend_event').on(t.eventId) }));
 
+// Generic fixed-window rate-limit counters for Orbit-side abuse controls (auth
+// brute force / account-spam). Mirrors the Mayfly limiter but is kept separate
+// to honor the Mayfly<->Orbit import boundary. `scope` namespaces a limit (e.g.
+// 'auth.login.ip'); `k` is the per-caller key (IP or handle).
+export const rateLimits = sqliteTable('rate_limits', {
+  id: text('id').primaryKey(),
+  scope: text('scope').notNull(),
+  k: text('k').notNull(),
+  hits: integer('hits').notNull().default(0),
+  windowStart: integer('window_start').notNull(),
+}, (t) => ({ uniq: unique('rate_limits_scope_k').on(t.scope, t.k) }));
+
 export type User = typeof users.$inferSelect;
 export type Connection = typeof connections.$inferSelect;
 export type Placement = typeof placements.$inferSelect;

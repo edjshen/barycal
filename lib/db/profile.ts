@@ -22,11 +22,14 @@ export async function getProfileData(handleOrShareId: string, viewerId: string |
     .map((ev) => enrich(ev, viewerId, ctx));
   const pub = publicUser(u)!;
   const out: {
-    user: typeof pub & { bio: string; scenes: string[] };
+    user: typeof pub & { bio: string; scenes: string[]; ghost: boolean };
     upcoming: any[]; isSelf: boolean; connection: string | null;
     stats?: { regulars: number; plans: number; scenes: number };
   } = {
-    user: { ...pub, bio: u.bio, scenes: u.scenes || [] },
+    // Expose the real ghost flag only to the owner (so their edit form reflects
+    // current state); everyone else always sees false. Ghost users are already
+    // 404'd for non-self viewers above, so their true flag never ships to others.
+    user: { ...pub, bio: u.bio, scenes: u.scenes || [], ghost: viewerId === u.id ? u.ghost : false },
     upcoming,
     isSelf: viewerId === u.id,
     connection: viewerId && viewerId !== u.id ? connectionStatus(ctx.conns, viewerId, u.id) : null,

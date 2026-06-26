@@ -3,7 +3,9 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "engines": { "node": "22.x" },
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -22,33 +24,36 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-rc.0",
+    "@noble/hashes": "^1.6.0",
+    "drizzle-orm": "^0.45.2",
+    "idb": "^8.0.3",
+    "iron-session": "^8.0.4",
+    "jsqr": "^1.4.0",
+    "motion": "^12.41.0",
+    "nanoid": "^5.1.15",
     "next": "^16.2.9",
+    "qrcode": "^1.5.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "drizzle-orm": "^0.44.0",
-    "iron-session": "^8.0.4",
-    "@noble/hashes": "^1.6.0",
-    "motion": "^12.41.0",
-    "@base-ui-components/react": "1.0.0-rc.0",
     "tweetnacl": "^1.0.3",
-    "zod": "^3.25.76",
-    "idb": "^8.0.3",
-    "jsqr": "^1.4.0",
-    "nanoid": "^5.1.15",
-    "qrcode": "^1.5.4"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260601.0",
     "@opennextjs/cloudflare": "^1.19.9",
     "@serwist/next": "^9.5.11",
-    "serwist": "^9.5.11",
-    "drizzle-kit": "^0.30.0",
-    "@cloudflare/workers-types": "^4.20260601.0",
-    "wrangler": "^4.103.0",
-    "typescript": "^5.7.0",
-    "tsx": "^4.19.0",
-    "vitest": "^2.1.0",
+    "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@types/node": "^22.0.0"
+    "drizzle-kit": "^0.31.10",
+    "serwist": "^9.5.11",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6",
+    "wrangler": "^4.103.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   }
 }
