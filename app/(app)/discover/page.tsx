@@ -25,5 +25,5 @@ export default async function DiscoverPage() {
   const week = { events: await calendarWindow(meId, ws.toISOString(), we.toISOString()), weekStartISO: ws.toISOString() };
   const month = { events: await calendarWindow(meId, mFirst.toISOString(), mNext.toISOString()), monthISO: mFirst.toISOString() };
 
-  return <DiscoverClient events={events} meId={meId} week={week} month={month} />;
+  return <DiscoverClient events={events} meId={meId} week={week} month={month} todayISO={from.toISOString()} />;
 }
