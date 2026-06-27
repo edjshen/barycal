@@ -20,3 +20,11 @@
 **Vendor coupling:**
 - **Cloudflare D1's low overhead only holds when hosting on Workers.** If hosting ever flips to Vercel, D1 is the wrong DB (binding-only fast path; admin REST throttles ~4 req/s) → switch to **Neon** (HTTP driver) with Drizzle. Rule of thumb: **host=Cloudflare→D1, host=Vercel→Neon.**
 - **Supabase free tier auto-pauses after 7 days idle** (needs a keep-alive cron or $25/mo Pro) — a reason it lost to D1 for a low-touch single-vendor setup.
+
+## 2026-06-26 — barycal first prod deploy (Next.js 16 + OpenNext + CF Workers/D1)
+- **`custom_domains` is NOT a valid wrangler.jsonc key** (silently ignored). Use `"routes":[{"pattern":"x.com","custom_domain":true}]`. This is why barycal.com never provisioned despite the config block.
+- **Apex DNS:** the Worker Custom Domain binding auto-creates the *www* record, but the *apex* (barycal.com) record did NOT get created via the wrangler OAuth token (can't edit zone DNS). www + workers.dev served fine; apex needs the CF dashboard (or self-provisions later). Zone NS confirmed on CF.
+- **`workers.dev` gets disabled** by a plain `wrangler deploy` when routes exist but `"workers_dev": true` is absent. Add it to keep the *.workers.dev fallback URL.
+- **SQLITE_BUSY at build:** running `wrangler d1 ...` concurrently with `next build`/`build:cf` (miniflare opens the local SQLite/DO) → fatal `SQLITE_BUSY`. Never run wrangler DB cmds while building.
+- **Playwright + Next 16 forms:** hidden `$ACTION_REF_*` Server Action inputs mean `form input` nth(0) grabs the hidden one. Target `input[type="text"]`/by-name/by-type.
+- **Minor:** prod app emits React hydration mismatch (#418) — non-fatal, recovers; likely SSR-vs-client date render. Follow-up fix.
