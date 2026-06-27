@@ -52,6 +52,17 @@ export const events = sqliteTable('events', {
   allDay: integer('all_day', { mode: 'boolean' }).notNull().default(false),
   // Optional explicit color key (see CAL_COLORS). Null falls back to type color.
   color: text('color'),
+  // --- per-instance recurrence exceptions (Google-Calendar style) ---
+  // For an exception row, the base series it belongs to. Null for a normal event
+  // or a series base. An exception row is itself non-recurring.
+  parentId: text('parent_id'),
+  // The YYYY-MM-DD of the original occurrence this row overrides/cancels.
+  originalDate: text('original_date'),
+  // True when this exception row CANCELS its occurrence (a "deleted" instance).
+  cancelled: integer('cancelled', { mode: 'boolean' }).notNull().default(false),
+  // For a series base: recurrence stops at/after this instant (exclusive). Used
+  // by "this and following" splits. Null = recurs indefinitely.
+  recurUntil: text('recur_until'),
   visibility: text('visibility', { enum: ['inner', 'orbit', 'public'] }).notNull(),
   expiresAt: text('expires_at'),
   createdAt: text('created_at').notNull(),

@@ -174,10 +174,19 @@ export default function CalendarApp({
             onCreate={({ startISO, endISO }) => setEditor({ open: true, startISO, endISO })}
             onOpenEvent={(ev) => setDetail(ev)}
             onMove={(ev, startISO, endISO) => {
-              optimisticMove(ev, startISO, endISO);
-              import('@/lib/actions/events').then(({ updateEvent }) =>
-                updateEvent(ev.id, { startTime: startISO, endTime: endISO }).then(refresh)
-              );
+              // Dragging a single occurrence of a series creates a per-instance
+              // override; only optimistically shift non-recurring events (whose
+              // base row genuinely moves).
+              if (ev.occurrence) {
+                import('@/lib/actions/events').then(({ updateEvent }) =>
+                  updateEvent(ev.id, { startTime: startISO, endTime: endISO }, { scope: 'single' }).then(refresh)
+                );
+              } else {
+                optimisticMove(ev, startISO, endISO);
+                import('@/lib/actions/events').then(({ updateEvent }) =>
+                  updateEvent(ev.id, { startTime: startISO, endTime: endISO }).then(refresh)
+                );
+              }
             }}
           />
         )}

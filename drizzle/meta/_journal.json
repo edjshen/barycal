@@ -29,6 +29,13 @@
       "when": 1782584916878,
       "tag": "0003_free_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1782589152541,
+      "tag": "0004_rapid_shaman",
+      "breakpoints": true
     }
   ]
 }

@@ -1,15 +1,45 @@
 import { CalEvent, DAY_MS, addDays, startOfDay } from './util';
 
-// Expand stored events (some of which recur) into concrete occurrences that
-// overlap [rangeStart, rangeEnd). Non-recurring events pass through unchanged.
-// Recurrence is series-based (no per-instance exceptions) — editing/deleting an
-// occurrence acts on the series, matching a lightweight calendar model.
+// Local YYYY-MM-DD for an instant — the occurrence key. Must match the server's
+// dateKey interpretation (lib/actions/events.ts occurrenceStartISO, which sets
+// the date components in local time).
+function localDateKey(ms: number): string {
+  const d = new Date(ms);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+// Expand stored events into concrete occurrences overlapping [rangeStart,
+// rangeEnd), honoring per-instance recurrence exceptions:
+//  - cancellation rows (cancelled=true) remove their occurrence,
+//  - override rows (parentId set) replace their occurrence with edited values,
+//  - a base's recurUntil stops generation at/after that instant.
 export function expandEvents(events: CalEvent[], rangeStart: Date, rangeEnd: Date): CalEvent[] {
   const out: CalEvent[] = [];
   const startMs = rangeStart.getTime();
   const endMs = rangeEnd.getTime();
 
+  // Partition into bases, overrides and cancellations.
+  const bases: CalEvent[] = [];
+  const overrides: CalEvent[] = [];
+  const exMap = new Map<string, Set<string>>(); // seriesId -> exception dateKeys
+  const addEx = (seriesId?: string | null, date?: string | null) => {
+    if (!seriesId || !date) return;
+    if (!exMap.has(seriesId)) exMap.set(seriesId, new Set());
+    exMap.get(seriesId)!.add(date);
+  };
   for (const ev of events) {
+    if (ev.cancelled) {
+      addEx(ev.parentId, ev.originalDate);
+    } else if (ev.parentId) {
+      overrides.push(ev);
+      addEx(ev.parentId, ev.originalDate); // an override also suppresses the generated occurrence
+    } else {
+      bases.push(ev);
+    }
+  }
+
+  for (const ev of bases) {
     const baseStart = new Date(ev.startTime);
     const baseEnd = ev.endTime ? new Date(ev.endTime) : new Date(baseStart.getTime() + 60 * 60000);
     const dur = baseEnd.getTime() - baseStart.getTime();
@@ -19,28 +49,39 @@ export function expandEvents(events: CalEvent[], rangeStart: Date, rangeEnd: Dat
       continue;
     }
 
-    // Walk occurrences forward from the base until we pass the range end. Cap the
+    const ex = exMap.get(ev.id);
+    const until = ev.recurUntil ? new Date(ev.recurUntil).getTime() : Infinity;
+
+    // Walk occurrences forward, fast-forwarding close to the range first. Cap the
     // iteration count as a safety valve against pathological inputs.
-    let cursor = new Date(baseStart);
+    let cursor = fastForward(ev.recurring, baseStart, rangeStart);
     let guard = 0;
-    // Fast-forward close to the range to avoid scanning years of history.
-    cursor = fastForward(ev.recurring, baseStart, rangeStart);
     while (cursor.getTime() < endMs && guard++ < 800) {
       const occStart = cursor.getTime();
+      if (occStart >= until) break;
       const occEnd = occStart + dur;
-      if (occEnd > startMs && occStart < endMs) {
+      const dateKey = localDateKey(occStart);
+      if (occEnd > startMs && occStart < endMs && !(ex && ex.has(dateKey))) {
         out.push({
           ...ev,
           startTime: new Date(occStart).toISOString(),
           endTime: new Date(occEnd).toISOString(),
           seriesId: ev.id,
-          id: `${ev.id}__${new Date(occStart).toISOString().slice(0, 10)}`,
+          id: `${ev.id}__${dateKey}`,
           occurrence: true,
         });
       }
       cursor = nextOccurrence(ev.recurring, cursor);
     }
   }
+
+  // Override instances render at their own (edited) time as one-off events.
+  for (const ov of overrides) {
+    const s = new Date(ov.startTime).getTime();
+    const e = ov.endTime ? new Date(ov.endTime).getTime() : s + 60 * 60000;
+    if (e > startMs && s < endMs) out.push({ ...ov, seriesId: ov.parentId || undefined });
+  }
+
   return out;
 }
 

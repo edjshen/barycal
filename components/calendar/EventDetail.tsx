@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Sheet from '../primitives/Sheet';
 import { deleteEvent, setRsvp } from '@/lib/actions/events';
 import { CalEvent, eventColorHex, fmtTime, MONTHS, WEEKDAYS } from './util';
+import RecurScopePrompt, { type Scope } from './RecurScopePrompt';
 
 const RECUR_LABEL: Record<string, string> = {
   daily: 'Repeats daily',
@@ -33,8 +34,10 @@ export default function EventDetail({
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [scopeAsk, setScopeAsk] = useState(false);
   const [rsvp, setLocalRsvp] = useState(ev.myRsvp || null);
   const mine = ev.creator?.id === meId;
+  const isOccurrence = !!ev.occurrence;
   const start = new Date(ev.startTime);
   const end = ev.endTime ? new Date(ev.endTime) : null;
   const dateLine = `${WEEKDAYS[start.getDay()]}, ${MONTHS[start.getMonth()]} ${start.getDate()}`;
@@ -42,11 +45,19 @@ export default function EventDetail({
     ? 'All day'
     : `${fmtTime(ev.startTime)}${end ? ' – ' + fmtTime(ev.endTime!) : ''}`;
 
-  async function remove() {
+  function remove() {
+    if (isOccurrence) {
+      setScopeAsk(true);
+      return;
+    }
     if (!window.confirm('Delete this event?')) return;
+    void doDelete();
+  }
+  async function doDelete(scope?: Scope) {
     setPending(true);
     try {
-      await deleteEvent(ev.id);
+      await deleteEvent(ev.id, scope ? { scope } : undefined);
+      setScopeAsk(false);
       onOpenChange(false);
       onChanged();
       router.refresh();
@@ -105,6 +116,15 @@ export default function EventDetail({
             Delete
           </button>
         </div>
+      )}
+
+      {scopeAsk && (
+        <RecurScopePrompt
+          open={scopeAsk}
+          title="Delete recurring event"
+          onOpenChange={setScopeAsk}
+          onPick={(s) => doDelete(s)}
+        />
       )}
     </Sheet>
   );

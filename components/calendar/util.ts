@@ -18,6 +18,11 @@ export type CalEvent = {
   proof?: { count: number; sample?: any[] };
   myRsvp?: string | null;
   attendeeCount?: number;
+  // Per-instance recurrence exception fields:
+  parentId?: string | null;
+  originalDate?: string | null;
+  cancelled?: boolean;
+  recurUntil?: string | null;
   // Synthetic fields added during recurrence expansion:
   seriesId?: string;
   occurrence?: boolean;
