@@ -17,7 +17,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": [
-      "@cloudflare/workers-types",
       "vitest/globals"
     ],
     "paths": {

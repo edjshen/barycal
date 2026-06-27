@@ -17,3 +17,4 @@ tsconfig.tsbuildinfo
 public/sw.js
 public/swe-worker-*.js
 workers/room/node_modules/
+.claire/
