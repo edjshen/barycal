@@ -5,6 +5,7 @@ export default defineConfig({
     environment: 'node',
     exclude: [
       'node_modules/**',
+      '.claude/**',
       'lib/mayfly/shared/**',
       'workers/**',
     ],

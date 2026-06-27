@@ -18,5 +18,9 @@
       "migrations_dir": "drizzle"
     }
   ],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  "custom_domains": [
+    { "pattern": "barycal.com" },
+    { "pattern": "www.barycal.com" }
+  ]
 }
