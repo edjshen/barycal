@@ -15,7 +15,9 @@ export function enrich(ev: BarycalEvent, viewer: string | null, ctx: EnrichCtx, 
   const creator = byId(ctx.users, ev.creatorId);
   const hiddenByGhost = !!creator?.ghost && viewer !== ev.creatorId;
   if (hiddenByGhost || !canSeeContent(viewer, ev, ctx.conns, ctx.places)) {
-    return { id: ev.id, type: 'busy' as const, busy: true, startTime: ev.startTime, endTime: ev.endTime, visibility: ev.visibility };
+    // `cancelled` is carried even on the redacted stub so a cancelled occurrence
+    // never surfaces as a phantom busy block on anyone's calendar.
+    return { id: ev.id, type: 'busy' as const, busy: true, startTime: ev.startTime, endTime: ev.endTime, visibility: ev.visibility, cancelled: !!ev.cancelled, parentId: ev.parentId || null, originalDate: ev.originalDate || null };
   }
   const att = ctx.attendance.filter((a) => a.eventId === ev.id);
   const mineIds = viewer ? myConnectionIds(ctx.conns, viewer) : new Set<string>();
@@ -26,6 +28,9 @@ export function enrich(ev: BarycalEvent, viewer: string | null, ctx: EnrichCtx, 
   const out: any = {
     id: ev.id, type: ev.type, title: ev.title, description: ev.description || '', location: ev.location || '',
     startTime: ev.startTime, endTime: ev.endTime || null, recurring: ev.recurring || null, visibility: ev.visibility,
+    allDay: !!ev.allDay, color: ev.color || null,
+    // per-instance recurrence exception metadata (used by client expansion)
+    parentId: ev.parentId || null, originalDate: ev.originalDate || null, cancelled: !!ev.cancelled, recurUntil: ev.recurUntil || null,
     creator: publicUser(creator),
     proof: { count: going.length, sample: going.slice(0, 3).map((a) => publicUser(byId(ctx.users, a.userId))).filter(Boolean) as PublicUser[] },
     myRsvp: viewer ? (att.find((a) => a.userId === viewer)?.rsvp ?? null) : null,

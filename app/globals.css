@@ -305,6 +305,9 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .ed-meta{font-size:13px;color:var(--dim);margin-bottom:6px}
 .ed-desc{font-size:14px;color:#cbc7d0;line-height:1.5;margin:12px 0 4px}
 .ed-rsvp{display:flex;gap:8px;margin-top:16px}
+.rs-opts{display:flex;flex-direction:column;gap:8px;margin:4px 0 10px}
+.rs-opt{text-align:left;padding:14px 16px;border-radius:14px;background:var(--card);border:1px solid var(--bd);color:var(--ink);font-size:15px;font-weight:600}
+.rs-opt:active{background:rgba(255,255,255,.09)}
 
 /* smooth cross-screen + theme transitions */
 @view-transition { navigation: auto; }

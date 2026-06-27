@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Sheet from '../primitives/Sheet';
 import { createEvent, updateEvent } from '@/lib/actions/events';
 import { CalEvent, CAL_COLORS, toDateInput, toLocalInput } from './util';
+import RecurScopePrompt, { type Scope } from './RecurScopePrompt';
 
 const TYPES: [string, string][] = [
   ['intention', 'Free'],
@@ -61,12 +62,23 @@ export default function EventEditor({
   const [desc, setDesc] = useState(ex?.description || '');
   const [pending, setPending] = useState(false);
   const [err, setErr] = useState('');
+  const [scopeAsk, setScopeAsk] = useState(false);
+  // Editing a generated occurrence of a series → ask which instances to change.
+  const isOccurrence = !!ex?.occurrence;
 
-  async function save() {
+  function save() {
     if (!title.trim()) {
       setErr('Add a title');
       return;
     }
+    if (isEdit && isOccurrence) {
+      setScopeAsk(true);
+      return;
+    }
+    void commit();
+  }
+
+  async function commit(scope?: Scope) {
     setPending(true);
     setErr('');
     try {
@@ -84,14 +96,16 @@ export default function EventEditor({
         color: color || null,
         visibility: vis,
       };
-      if (isEdit) await updateEvent(ex!.id, payload);
+      if (isEdit) await updateEvent(ex!.id, payload, scope ? { scope } : undefined);
       else await createEvent(payload);
       setPending(false);
+      setScopeAsk(false);
       onOpenChange(false);
       onSaved();
       router.refresh();
     } catch (e: any) {
       setPending(false);
+      setScopeAsk(false);
       setErr(e?.message || 'Could not save');
     }
   }
@@ -204,6 +218,15 @@ export default function EventEditor({
       <button className="btn solid block" disabled={pending} onClick={save}>
         {pending ? 'Saving…' : isEdit ? 'Save changes' : 'Add to calendar'}
       </button>
+
+      {scopeAsk && (
+        <RecurScopePrompt
+          open={scopeAsk}
+          title="Save recurring event"
+          onOpenChange={setScopeAsk}
+          onPick={(s) => commit(s)}
+        />
+      )}
     </Sheet>
   );
 }
