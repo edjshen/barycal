@@ -1,3 +1,6 @@
+@font-face{font-family:'Righteous';src:url('/fonts/Righteous.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Searider Falcon';src:url('/fonts/SeariderFalcon.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+
 /* Barycal design system — dark / editorial. Ported from docs/mocks. */
 :root{
   --bg:#0C0B10; --bg2:#100E16;
@@ -6,8 +9,8 @@
   --ink:#F4F1EA; --dim:#A09CA9; --faint:#6C6878;
   --accent:#FF7A59; --accent2:#FF5E87; --free:#5FD3A6; --violet:#9B8CFF; --amber:#FFC178;
   --grad:linear-gradient(135deg,#FF8A5B 0%,#FF5E87 100%);
-  --serif:ui-serif,Georgia,"Iowan Old Style","Times New Roman",serif;
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:'Searider Falcon',ui-serif,Georgia,serif;
+  --sans:'Righteous',-apple-system,BlinkMacSystemFont,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
