@@ -37,7 +37,10 @@ export default function ProfileView({ data }: { data: ProfileData }) {
   }
 
   function saveProfile() {
-    const parsedScenes = scenes.split(',').map((x) => x.trim()).filter(Boolean);
+    const parsedScenes = scenes
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean);
     startTransition(async () => {
       await updateProfile({ displayName: dn, bio, scenes: parsedScenes, ghost });
       setSheetOpen(false);
@@ -45,7 +48,8 @@ export default function ProfileView({ data }: { data: ProfileData }) {
     });
   }
 
-  const fullLink = typeof window !== 'undefined' ? location.origin + '/u/' + user.handle : '/u/' + user.handle;
+  const fullLink =
+    typeof window !== 'undefined' ? location.origin + '/u/' + user.handle : '/u/' + user.handle;
   const displayLink = fullLink.replace(/^https?:\/\//, '');
 
   function copyLink() {
@@ -65,26 +69,42 @@ export default function ProfileView({ data }: { data: ProfileData }) {
         {(user.scenes || []).length > 0 && (
           <div className="chips" style={{ marginTop: 13 }}>
             {(user.scenes || []).map((s) => (
-              <span key={s} className="chip">{s}</span>
+              <span key={s} className="chip">
+                {s}
+              </span>
             ))}
           </div>
         )}
         <div className="linkrow">
-          <div className="linkbox"><Icon name="link" /> {displayLink}</div>
-          <button className="btn solid" onClick={copyLink}>Share</button>
+          <div className="linkbox">
+            <Icon name="link" /> {displayLink}
+          </div>
+          <button className="btn solid" onClick={copyLink}>
+            Share
+          </button>
         </div>
         <div className="row" style={{ gap: 10, marginTop: 10 }}>
           {isSelf && (
-            <button className="btn sm" onClick={openEdit}>Edit profile</button>
+            <button className="btn sm" onClick={openEdit}>
+              Edit profile
+            </button>
           )}
-          <Link href="/circles" className="btn sm">Circles</Link>
+          <Link href="/circles" className="btn sm">
+            Circles
+          </Link>
           <form action={logout} style={{ marginLeft: 'auto' }}>
-            <button type="submit" className="btn sm">Log out</button>
+            <button type="submit" className="btn sm">
+              Log out
+            </button>
           </form>
         </div>
-        <div className="kicker" style={{ margin: '22px 0 6px' }}>What I&apos;m going to</div>
+        <div className="kicker" style={{ margin: '22px 0 6px' }}>
+          What I&apos;m going to
+        </div>
         {upcoming.length === 0 ? (
-          <div className="empty" style={{ padding: 24 }}>Nothing upcoming yet.</div>
+          <div className="empty" style={{ padding: 24 }}>
+            Nothing upcoming yet.
+          </div>
         ) : (
           upcoming.map((ev: any) => {
             if (ev.busy) return null;
@@ -102,7 +122,8 @@ export default function ProfileView({ data }: { data: ProfileData }) {
                     {ev.recurring && <span style={{ color: 'var(--violet)' }}> ↻</span>}
                   </div>
                   <div className="s">
-                    {timeLabel(ev.startTime)}{ev.location ? ' · ' + ev.location : ''}
+                    {timeLabel(ev.startTime)}
+                    {ev.location ? ' · ' + ev.location : ''}
                   </div>
                 </div>
                 <span className="vis">
@@ -114,9 +135,18 @@ export default function ProfileView({ data }: { data: ProfileData }) {
         )}
         {isSelf && (
           <div className="statline">
-            <div><b>{s.regulars || 0}</b><span>regulars</span></div>
-            <div><b>{s.plans || 0}</b><span>plans</span></div>
-            <div><b>{s.scenes || 0}</b><span>scenes</span></div>
+            <div>
+              <b>{s.regulars || 0}</b>
+              <span>regulars</span>
+            </div>
+            <div>
+              <b>{s.plans || 0}</b>
+              <span>plans</span>
+            </div>
+            <div>
+              <b>{s.scenes || 0}</b>
+              <span>scenes</span>
+            </div>
           </div>
         )}
       </div>
@@ -136,10 +166,17 @@ export default function ProfileView({ data }: { data: ProfileData }) {
           <input type="text" value={scenes} onChange={(e) => setScenes(e.target.value)} />
         </div>
         <label className="row" style={{ gap: 9, margin: '4px 0 16px' }}>
-          <input type="checkbox" checked={ghost} onChange={(e) => setGhost(e.target.checked)} style={{ width: 'auto' }} />
+          <input
+            type="checkbox"
+            checked={ghost}
+            onChange={(e) => setGhost(e.target.checked)}
+            style={{ width: 'auto' }}
+          />
           <span className="muted">Ghost mode — hide my profile</span>
         </label>
-        <button className="btn solid block" onClick={saveProfile}>Save</button>
+        <button className="btn solid block" onClick={saveProfile}>
+          Save
+        </button>
       </Sheet>
     </>
   );

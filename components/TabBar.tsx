@@ -14,9 +14,23 @@ export default function TabBar() {
   const onCal = path.startsWith('/calendar');
   return (
     <nav className="nav">
-      {TABS.slice(0, 2).map((t) => <Link key={t.href} href={t.href} className={path.startsWith(t.href) ? 'on' : ''}><Icon name={t.icon} />{t.label}</Link>)}
-      <Link href="/calendar" className={onCal ? 'on' : ''} aria-label="Calendar"><span className="create"><Icon name="calendar" /></span></Link>
-      {TABS.slice(2).map((t) => <Link key={t.href} href={t.href} className={path.startsWith(t.href) ? 'on' : ''}><Icon name={t.icon} />{t.label}</Link>)}
+      {TABS.slice(0, 2).map((t) => (
+        <Link key={t.href} href={t.href} className={path.startsWith(t.href) ? 'on' : ''}>
+          <Icon name={t.icon} />
+          {t.label}
+        </Link>
+      ))}
+      <Link href="/calendar" className={onCal ? 'on' : ''} aria-label="Calendar">
+        <span className="create">
+          <Icon name="calendar" />
+        </span>
+      </Link>
+      {TABS.slice(2).map((t) => (
+        <Link key={t.href} href={t.href} className={path.startsWith(t.href) ? 'on' : ''}>
+          <Icon name={t.icon} />
+          {t.label}
+        </Link>
+      ))}
     </nav>
   );
 }
