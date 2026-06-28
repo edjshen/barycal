@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260601.0",
-    "@opennextjs/cloudflare": "^1.19.9",
+    "@opennextjs/cloudflare": "^1.20.1",
     "@serwist/next": "^9.5.11",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
@@ -63,7 +63,7 @@
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
     "vitest": "^3.2.6",
-    "wrangler": "^4.103.0"
+    "wrangler": "^4.105.0"
   },
   "overrides": {
     "postcss": "^8.5.10"
