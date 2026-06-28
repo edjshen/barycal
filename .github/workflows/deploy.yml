@@ -102,4 +102,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: workers/room
-          command: deploy
+          # Pin --config so wrangler doesn't walk UP the tree and pick the
+          # repo-root wrangler.jsonc (the OpenNext app worker). workingDirectory
+          # is workers/room, so this resolves to workers/room/wrangler.toml.
+          # Mirrors the room package's own `deploy` script (-c ./wrangler.toml).
+          command: deploy --config wrangler.toml
