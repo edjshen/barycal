@@ -7,7 +7,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!s.userId) redirect('/login');
   return (
     <>
-      <div className="shell">
+      <div className="shell app-shell">
         <div className="main">{children}</div>
       </div>
       <TabBar />

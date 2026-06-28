@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition } from 'react';
+import { Fragment, useState, useTransition } from 'react';
 import { dayLabel, timeLabel } from '@/lib/format';
 import Pill from './primitives/Pill';
 import { deleteEvent } from '@/lib/actions/events';
@@ -35,51 +35,53 @@ export default function PlansClient({ events, meId }: { events: any[]; meId: str
           Tap ＋ to make one — or set an intention like "free for lunch".
         </div>
       )}
-      {events.map((ev) => {
-        const dl = dayLabel(ev.startTime);
-        const head =
-          dl !== last ? (
-            <div className="daylabel" key={'d' + ev.id}>
-              {dl}
-            </div>
-          ) : null;
-        last = dl;
-        const role =
-          ev.creator?.id === meId ? 'Hosting' : ev.myRsvp === 'going' ? "You're in" : ev.myRsvp;
-        return (
-          <div key={ev.id}>
-            {head}
-            <div className="card">
-              <div className="row between">
-                <Pill type={ev.type} recurring={!!ev.recurring} />
-                <span className="meta">{timeLabel(ev.startTime)}</span>
+      <div className="feed">
+        {events.map((ev) => {
+          const dl = dayLabel(ev.startTime);
+          const head =
+            dl !== last ? (
+              <div className="daylabel" key={'d' + ev.id}>
+                {dl}
               </div>
-              <div className="ev-title">{ev.title}</div>
-              <div className="meta">
-                {ev.location || ''}
-                {ev.attendeeCount ? (
-                  <>
-                    <span className="dot" />
-                    {ev.attendeeCount} in
-                  </>
-                ) : null}
+            ) : null;
+          last = dl;
+          const role =
+            ev.creator?.id === meId ? 'Hosting' : ev.myRsvp === 'going' ? "You're in" : ev.myRsvp;
+          return (
+            <Fragment key={ev.id}>
+              {head}
+              <div className="card">
+                <div className="row between">
+                  <Pill type={ev.type} recurring={!!ev.recurring} />
+                  <span className="meta">{timeLabel(ev.startTime)}</span>
+                </div>
+                <div className="ev-title">{ev.title}</div>
+                <div className="meta">
+                  {ev.location || ''}
+                  {ev.attendeeCount ? (
+                    <>
+                      <span className="dot" />
+                      {ev.attendeeCount} in
+                    </>
+                  ) : null}
+                </div>
+                <div className="row between" style={{ marginTop: 10 }}>
+                  <span className="btn sm in">{role}</span>
+                  {ev.creator?.id === meId && (
+                    <button
+                      className="btn sm"
+                      onClick={() => handleCancel(ev.id)}
+                      disabled={isPending}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="row between" style={{ marginTop: 10 }}>
-                <span className="btn sm in">{role}</span>
-                {ev.creator?.id === meId && (
-                  <button
-                    className="btn sm"
-                    onClick={() => handleCancel(ev.id)}
-                    disabled={isPending}
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+            </Fragment>
+          );
+        })}
+      </div>
       <CreateSheet open={open} onOpenChange={setOpen} />
     </>
   );

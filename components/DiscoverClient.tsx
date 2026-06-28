@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import Segmented from './primitives/Segmented';
 import EventCard from './EventCard';
 import WeekGrid from './WeekGrid';
@@ -60,22 +60,24 @@ export default function DiscoverClient({
           Tap ＋ to start something.
         </div>
       )}
-      {events.map((ev) => {
-        const dl = dayLabel(ev.startTime);
-        const head =
-          dl !== last ? (
-            <div className="daylabel" key={'d' + ev.id}>
-              {dl}
-            </div>
-          ) : null;
-        last = dl;
-        return (
-          <div key={ev.id}>
-            {head}
-            <EventCard ev={ev} meId={meId} />
-          </div>
-        );
-      })}
+      <div className="feed">
+        {events.map((ev) => {
+          const dl = dayLabel(ev.startTime);
+          const head =
+            dl !== last ? (
+              <div className="daylabel" key={'d' + ev.id}>
+                {dl}
+              </div>
+            ) : null;
+          last = dl;
+          return (
+            <Fragment key={ev.id}>
+              {head}
+              <EventCard ev={ev} meId={meId} />
+            </Fragment>
+          );
+        })}
+      </div>
       {events.length > 0 && <div className="footnote">— that's your week —</div>}
     </>
   );
