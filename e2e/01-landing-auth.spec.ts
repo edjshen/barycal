@@ -18,7 +18,9 @@ test.describe('Landing & Auth', () => {
     await page.goto('/login');
     await page.waitForLoadState('networkidle');
     // Should have username and password fields
-    const usernameField = page.locator('input[name="username"], input[placeholder*="username" i], input[id*="username" i], label:has-text("username") + input, label:has-text("Username") ~ input');
+    const usernameField = page.locator(
+      'input[name="username"], input[placeholder*="username" i], input[id*="username" i], label:has-text("username") + input, label:has-text("Username") ~ input'
+    );
     const passwordField = page.locator('input[type="password"]');
     await expect(usernameField.first()).toBeVisible({ timeout: 5000 });
     await expect(passwordField.first()).toBeVisible({ timeout: 5000 });
@@ -56,7 +58,10 @@ test.describe('Landing & Auth', () => {
     // Should stay on login or show error
     await page.waitForTimeout(2000);
     const url = page.url();
-    const hasError = await page.locator('[class*="error"], [role="alert"], .error, [data-error]').isVisible({ timeout: 3000 }).catch(() => false);
+    const hasError = await page
+      .locator('[class*="error"], [role="alert"], .error, [data-error]')
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
     // Either stays on login page or shows error
     const staysOnLogin = url.includes('/login');
     const hasErrorMsg = hasError;
@@ -72,7 +77,10 @@ test.describe('Landing & Auth', () => {
     await page.waitForLoadState('networkidle');
     // Should be redirected to login or see auth wall
     const url = page.url();
-    const hasAuthWall = await page.locator('[class*="auth"], form input[type="password"]').isVisible({ timeout: 3000 }).catch(() => false);
+    const hasAuthWall = await page
+      .locator('[class*="auth"], form input[type="password"]')
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
     expect(url.includes('/login') || url.includes('/register') || hasAuthWall).toBeTruthy();
   });
 

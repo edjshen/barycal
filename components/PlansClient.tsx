@@ -83,21 +83,16 @@ export default function PlansClient({ events, meId }: { events: any[]; meId: str
                 </div>
                 <div className="row between" style={{ marginTop: 10 }}>
                   <span className="btn sm in">{role}</span>
-                  {ev.creator?.id === meId && (
-                    confirmingId === ev.id ? (
+                  {ev.creator?.id === meId &&
+                    (confirmingId === ev.id ? (
                       <div className="row" style={{ gap: 6 }}>
-                        <span className="muted" style={{ fontSize: 13 }}>Sure?</span>
-                        <button
-                          className="btn sm"
-                          onClick={confirmCancel}
-                          disabled={isPending}
-                        >
+                        <span className="muted" style={{ fontSize: 13 }}>
+                          Sure?
+                        </span>
+                        <button className="btn sm" onClick={confirmCancel} disabled={isPending}>
                           Yes, cancel
                         </button>
-                        <button
-                          className="btn sm"
-                          onClick={() => setConfirmingId(null)}
-                        >
+                        <button className="btn sm" onClick={() => setConfirmingId(null)}>
                           Keep
                         </button>
                       </div>
@@ -109,8 +104,7 @@ export default function PlansClient({ events, meId }: { events: any[]; meId: str
                       >
                         Cancel
                       </button>
-                    )
-                  )}
+                    ))}
                 </div>
               </div>
             </Fragment>

@@ -111,7 +111,9 @@ export default function EventDetail({
         <div className="row" style={{ gap: 10, marginTop: 18 }}>
           {confirmDelete ? (
             <>
-              <span className="muted" style={{ fontSize: 13, alignSelf: 'center' }}>Delete?</span>
+              <span className="muted" style={{ fontSize: 13, alignSelf: 'center' }}>
+                Delete?
+              </span>
               <button className="btn" onClick={() => doDelete()} disabled={pending}>
                 Yes, delete
               </button>

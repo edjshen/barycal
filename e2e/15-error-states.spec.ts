@@ -12,13 +12,16 @@ test.describe('Error States & Edge Cases', () => {
   test('404 page renders gracefully', async ({ page }) => {
     await page.goto('/this-route-does-not-exist-xyz');
     await page.waitForLoadState('networkidle');
-    const bodyText = await page.locator('body').textContent() || '';
-    const has404 = bodyText.includes('404') ||
-                   bodyText.toLowerCase().includes('not found') ||
-                   bodyText.toLowerCase().includes('page doesn');
+    const bodyText = (await page.locator('body').textContent()) || '';
+    const has404 =
+      bodyText.includes('404') ||
+      bodyText.toLowerCase().includes('not found') ||
+      bodyText.toLowerCase().includes('page doesn');
     expect(has404).toBeTruthy();
     // Should have a way back home
-    const homeLink = page.locator('a[href="/"], a:has-text("Home"), a:has-text("Go back"), button:has-text("Go home")');
+    const homeLink = page.locator(
+      'a[href="/"], a:has-text("Home"), a:has-text("Go back"), button:has-text("Go home")'
+    );
     const hasHomeLink = await homeLink.isVisible({ timeout: 2000 }).catch(() => false);
     if (!hasHomeLink) {
       console.log('404 page missing home link - UX improvement opportunity');
@@ -53,7 +56,7 @@ test.describe('Error States & Edge Cases', () => {
     // Plans page - might be empty for a fresh user
     await page.goto('/plans');
     await page.waitForLoadState('networkidle');
-    const bodyText = await page.locator('body').textContent() || '';
+    const bodyText = (await page.locator('body').textContent()) || '';
     // If empty, should have some message
     const hasContent = bodyText.length > 50;
     expect(hasContent).toBeTruthy();
@@ -71,7 +74,10 @@ test.describe('Error States & Edge Cases', () => {
     await page.waitForLoadState('networkidle');
     // Should still be logged in (not redirected to login)
     expect(page.url()).toContain('/discover');
-    const hasLoginForm = await page.locator('input[type="password"]').isVisible({ timeout: 2000 }).catch(() => false);
+    const hasLoginForm = await page
+      .locator('input[type="password"]')
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
     expect(hasLoginForm).toBe(false);
   });
 
@@ -94,13 +100,14 @@ test.describe('Error States & Edge Cases', () => {
     await submitBtn.click();
     await page.waitForTimeout(2000);
 
-    const bodyText = await page.locator('body').textContent() || '';
+    const bodyText = (await page.locator('body').textContent()) || '';
     // Should either stay on register or show error about taken username
     const staysOnRegister = page.url().includes('/register');
-    const showsError = bodyText.toLowerCase().includes('taken') ||
-                       bodyText.toLowerCase().includes('already') ||
-                       bodyText.toLowerCase().includes('error') ||
-                       bodyText.toLowerCase().includes('exists');
+    const showsError =
+      bodyText.toLowerCase().includes('taken') ||
+      bodyText.toLowerCase().includes('already') ||
+      bodyText.toLowerCase().includes('error') ||
+      bodyText.toLowerCase().includes('exists');
     expect(staysOnRegister || showsError).toBeTruthy();
   });
 

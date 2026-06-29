@@ -26,7 +26,13 @@ export default function AuthForm({
       <p className="tag">your life in orbit</p>
       <div className="field">
         <label htmlFor="auth-username">Username</label>
-        <input id="auth-username" name="username" type="text" autoCapitalize="off" placeholder="ed" />
+        <input
+          id="auth-username"
+          name="username"
+          type="text"
+          autoCapitalize="off"
+          placeholder="ed"
+        />
       </div>
       {reg && (
         <div className="field">

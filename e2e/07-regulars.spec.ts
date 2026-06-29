@@ -24,7 +24,9 @@ test.describe('Regulars Page', () => {
 
   test('shows regulars list or empty/onboarding state', async ({ page }) => {
     // Look for regulars list items or empty state
-    const content = page.locator('[class*="regular"], [class*="Regular"], [class*="person"], [class*="empty"], [class*="Empty"]');
+    const content = page.locator(
+      '[class*="regular"], [class*="Regular"], [class*="person"], [class*="empty"], [class*="Empty"]'
+    );
     const hasContent = await content.isVisible({ timeout: 5000 }).catch(() => false);
     const bodyText = await page.locator('body').textContent();
     // Page should have meaningful content
@@ -32,10 +34,13 @@ test.describe('Regulars Page', () => {
   });
 
   test('regulars section distinguishes "Regulars" from "Rising"', async ({ page }) => {
-    const bodyText = await page.locator('body').textContent() || '';
-    const hasRegulars = bodyText.toLowerCase().includes('regular') || bodyText.toLowerCase().includes('rising');
+    const bodyText = (await page.locator('body').textContent()) || '';
+    const hasRegulars =
+      bodyText.toLowerCase().includes('regular') || bodyText.toLowerCase().includes('rising');
     // Check for Rising section
-    const risingEl = page.locator('h2:has-text("Rising"), h3:has-text("Rising"), [class*="rising"]');
+    const risingEl = page.locator(
+      'h2:has-text("Rising"), h3:has-text("Rising"), [class*="rising"]'
+    );
     const hasRising = await risingEl.isVisible({ timeout: 2000 }).catch(() => false);
     if (!hasRegulars && !hasRising) {
       console.log('No Regulars/Rising sections found - may need more attendance data');
@@ -52,7 +57,9 @@ test.describe('Regulars Page', () => {
   });
 
   test('make standing plan CTA works (if present)', async ({ page }) => {
-    const ctaBtn = page.locator('button:has-text("Standing"), button:has-text("standing plan"), button:has-text("Plan together")');
+    const ctaBtn = page.locator(
+      'button:has-text("Standing"), button:has-text("standing plan"), button:has-text("Plan together")'
+    );
     const hasCTA = await ctaBtn.isVisible({ timeout: 2000 }).catch(() => false);
     if (hasCTA) {
       await ctaBtn.first().click();

@@ -24,10 +24,14 @@ test.describe('Circles Page', () => {
 
   test('shows connections list or empty state', async ({ page }) => {
     // Should show connections or an empty/discovery state
-    const connections = page.locator('[class*="connection"], [class*="contact"], [class*="person"], [class*="user"]');
+    const connections = page.locator(
+      '[class*="connection"], [class*="contact"], [class*="person"], [class*="user"]'
+    );
     const hasConnections = await connections.isVisible({ timeout: 5000 }).catch(() => false);
     // OR empty state
-    const emptyState = page.locator('[class*="empty"], [class*="Empty"], p:has-text("no one"), p:has-text("Connect")');
+    const emptyState = page.locator(
+      '[class*="empty"], [class*="Empty"], p:has-text("no one"), p:has-text("Connect")'
+    );
     const hasEmpty = await emptyState.isVisible({ timeout: 2000 }).catch(() => false);
     // OR discovery section
     const discover = page.locator('[class*="discover"], [class*="directory"]');
@@ -38,19 +42,27 @@ test.describe('Circles Page', () => {
   test('Inner/Outer Circle tiers are shown for connections', async ({ page }) => {
     // Look for tier indicators
     const innerEl = page.locator('button:has-text("Inner"), [class*="inner"], [data-tier="inner"]');
-    const outerEl = page.locator('button:has-text("Outer"), button:has-text("Orbit"), [class*="outer"], [class*="orbit"]');
-    const hasTiers = await innerEl.isVisible({ timeout: 3000 }).catch(() => false) ||
-                     await outerEl.isVisible({ timeout: 3000 }).catch(() => false);
+    const outerEl = page.locator(
+      'button:has-text("Outer"), button:has-text("Orbit"), [class*="outer"], [class*="orbit"]'
+    );
+    const hasTiers =
+      (await innerEl.isVisible({ timeout: 3000 }).catch(() => false)) ||
+      (await outerEl.isVisible({ timeout: 3000 }).catch(() => false));
     if (!hasTiers) {
       console.log('Tier indicators not visible - may need connections first');
     }
     // Page should load without error regardless
-    const hasError = await page.locator('[class*="error-boundary"]').isVisible({ timeout: 2000 }).catch(() => false);
+    const hasError = await page
+      .locator('[class*="error-boundary"]')
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
     expect(hasError).toBe(false);
   });
 
   test('can search for people to connect with', async ({ page }) => {
-    const searchInput = page.locator('input[type="search"], input[placeholder*="search" i], input[placeholder*="find" i], input[placeholder*="name" i]');
+    const searchInput = page.locator(
+      'input[type="search"], input[placeholder*="search" i], input[placeholder*="find" i], input[placeholder*="name" i]'
+    );
     const hasSearch = await searchInput.isVisible({ timeout: 3000 }).catch(() => false);
     if (hasSearch) {
       await searchInput.fill('maya');
@@ -64,7 +76,9 @@ test.describe('Circles Page', () => {
   });
 
   test('ghost mode toggle is accessible from circles', async ({ page }) => {
-    const ghostToggle = page.locator('button:has-text("Ghost"), [class*="ghost"], input[type="checkbox"][name*="ghost" i]');
+    const ghostToggle = page.locator(
+      'button:has-text("Ghost"), [class*="ghost"], input[type="checkbox"][name*="ghost" i]'
+    );
     const hasGhost = await ghostToggle.isVisible({ timeout: 3000 }).catch(() => false);
     if (!hasGhost) {
       console.log('Ghost mode toggle not found on circles page - may be in profile');
@@ -72,7 +86,9 @@ test.describe('Circles Page', () => {
   });
 
   test('pending connection requests section exists', async ({ page }) => {
-    const pendingSection = page.locator('[class*="pending"], [class*="request"], h2:has-text("Pending"), h3:has-text("Pending")');
+    const pendingSection = page.locator(
+      '[class*="pending"], [class*="request"], h2:has-text("Pending"), h3:has-text("Pending")'
+    );
     const hasPending = await pendingSection.isVisible({ timeout: 3000 }).catch(() => false);
     if (!hasPending) {
       console.log('No pending requests section (may be empty or integrated)');

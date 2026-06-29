@@ -20,7 +20,7 @@ test.describe('RSVP Flow', () => {
     // Find RSVP buttons (Down/Maybe/Can't)
     const rsvpBtns = page.locator(
       'button:has-text("Down"), button:has-text("Maybe"), button:has-text("Can\'t"), ' +
-      'button[aria-label*="rsvp" i], [class*="RsvpButton"], [class*="rsvp"]'
+        'button[aria-label*="rsvp" i], [class*="RsvpButton"], [class*="rsvp"]'
     );
     const hasRsvp = await rsvpBtns.isVisible({ timeout: 5000 }).catch(() => false);
 
@@ -31,7 +31,10 @@ test.describe('RSVP Flow', () => {
       if (hasCard) {
         await card.click();
         await page.waitForTimeout(500);
-        const rsvpAfterClick = await page.locator('button:has-text("Down"), button:has-text("Maybe")').isVisible({ timeout: 2000 }).catch(() => false);
+        const rsvpAfterClick = await page
+          .locator('button:has-text("Down"), button:has-text("Maybe")')
+          .isVisible({ timeout: 2000 })
+          .catch(() => false);
         if (!rsvpAfterClick) {
           console.log('No RSVP buttons found even after clicking event card');
         }
@@ -89,7 +92,11 @@ test.describe('RSVP Flow', () => {
 
     if (hasDown) {
       // Get text before
-      const beforeText = await page.locator('[class*="count"], [class*="attendee"]').first().textContent().catch(() => null);
+      const beforeText = await page
+        .locator('[class*="count"], [class*="attendee"]')
+        .first()
+        .textContent()
+        .catch(() => null);
       await downBtn.click();
       await page.waitForTimeout(1000);
       // Count may or may not change visibly - just ensure no crash

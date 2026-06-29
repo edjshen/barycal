@@ -16,7 +16,7 @@ test.describe('Public Pages (Account-Free)', () => {
   test('public profile shows username/handle', async ({ page }) => {
     await page.goto('/u/ed');
     await page.waitForLoadState('networkidle');
-    const bodyText = await page.locator('body').textContent() || '';
+    const bodyText = (await page.locator('body').textContent()) || '';
     // Should show the handle "ed" somewhere
     expect(bodyText.toLowerCase()).toContain('ed');
   });
@@ -25,7 +25,7 @@ test.describe('Public Pages (Account-Free)', () => {
     await page.goto('/u/ed');
     await page.waitForLoadState('networkidle');
     // Should show events or an appropriate empty state
-    const bodyText = await page.locator('body').textContent() || '';
+    const bodyText = (await page.locator('body').textContent()) || '';
     const hasContent = bodyText.length > 100;
     expect(hasContent).toBeTruthy();
   });
@@ -35,7 +35,7 @@ test.describe('Public Pages (Account-Free)', () => {
     await page.waitForLoadState('networkidle');
     const ctaEl = page.locator(
       'button:has-text("Follow"), button:has-text("Join"), button:has-text("Sign up"), ' +
-      'a:has-text("Join"), a:has-text("Sign up"), [class*="cta"], [class*="PublicCta"]'
+        'a:has-text("Join"), a:has-text("Sign up"), [class*="cta"], [class*="PublicCta"]'
     );
     const hasCTA = await ctaEl.isVisible({ timeout: 3000 }).catch(() => false);
     if (!hasCTA) {
@@ -46,10 +46,11 @@ test.describe('Public Pages (Account-Free)', () => {
   test('non-existent handle shows 404 or not-found page', async ({ page }) => {
     await page.goto('/u/definitely-not-a-real-user-handle-xyz123');
     await page.waitForLoadState('networkidle');
-    const bodyText = await page.locator('body').textContent() || '';
-    const has404 = bodyText.includes('404') ||
-                   bodyText.toLowerCase().includes('not found') ||
-                   bodyText.toLowerCase().includes("doesn't exist");
+    const bodyText = (await page.locator('body').textContent()) || '';
+    const has404 =
+      bodyText.includes('404') ||
+      bodyText.toLowerCase().includes('not found') ||
+      bodyText.toLowerCase().includes("doesn't exist");
     // Should handle gracefully
     expect(has404 || page.url().includes('not-found')).toBeTruthy();
   });
@@ -108,7 +109,7 @@ test.describe('Public Pages (Account-Free)', () => {
         // Should show RSVP or signup CTA
         const rsvpOrCTA = page.locator(
           'button:has-text("Down"), button:has-text("Maybe"), button:has-text("Can\'t"), ' +
-          'button:has-text("RSVP"), a:has-text("Sign up"), a:has-text("Join")'
+            'button:has-text("RSVP"), a:has-text("Sign up"), a:has-text("Join")'
         );
         const hasRsvpOrCTA = await rsvpOrCTA.isVisible({ timeout: 3000 }).catch(() => false);
         if (!hasRsvpOrCTA) {

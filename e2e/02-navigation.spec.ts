@@ -35,7 +35,10 @@ test.describe('Navigation & Tab Bar', () => {
     await page.waitForLoadState('networkidle');
     expect(page.url()).toContain('/discover');
     // Should not show 404 or error
-    const notFound = await page.locator('[class*="not-found"], h1:has-text("404")').isVisible({ timeout: 2000 }).catch(() => false);
+    const notFound = await page
+      .locator('[class*="not-found"], h1:has-text("404")')
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
     expect(notFound).toBe(false);
   });
 
@@ -74,11 +77,16 @@ test.describe('Navigation & Tab Bar', () => {
     await page.waitForLoadState('networkidle');
     // The discover tab should have an active/selected state
     // Look for aria-current, data-active, or active CSS class
-    const activeTab = page.locator('nav a[aria-current="page"], nav a.active, nav [data-active="true"], [class*="tab"][class*="active"]');
+    const activeTab = page.locator(
+      'nav a[aria-current="page"], nav a.active, nav [data-active="true"], [class*="tab"][class*="active"]'
+    );
     // Should have at least one active indicator
     const count = await activeTab.count();
     // Either active class exists or we have a working nav
-    const navExists = await page.locator('nav').isVisible({ timeout: 3000 }).catch(() => false);
+    const navExists = await page
+      .locator('nav')
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
     expect(navExists).toBe(true);
   });
 });

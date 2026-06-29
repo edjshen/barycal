@@ -77,9 +77,9 @@ test.describe('Mobile UX', () => {
     await page.goto('/discover');
     await page.waitForLoadState('networkidle');
 
-    const createBtn = page.locator(
-      'button[aria-label*="create" i], [class*="CreateButton"], button:has-text("+")'
-    ).first();
+    const createBtn = page
+      .locator('button[aria-label*="create" i], [class*="CreateButton"], button:has-text("+")')
+      .first();
     const hasCreate = await createBtn.isVisible({ timeout: 3000 }).catch(() => false);
 
     if (hasCreate) {

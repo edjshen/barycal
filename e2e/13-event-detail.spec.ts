@@ -28,7 +28,7 @@ test.describe('Event Detail Page', () => {
       // Should show some event details
       const eventTitle = page.locator('[class*="title"], [class*="heading"], h1, h2').first();
       const hasTitle = await eventTitle.isVisible({ timeout: 3000 }).catch(() => false);
-      const bodyText = await page.locator('body').textContent() || '';
+      const bodyText = (await page.locator('body').textContent()) || '';
       expect(bodyText.length).toBeGreaterThan(50);
     } else {
       console.log('No event cards found to test detail view');
@@ -46,7 +46,9 @@ test.describe('Event Detail Page', () => {
       await card.click();
       await page.waitForTimeout(1000);
 
-      const attendees = page.locator('[class*="attendee"], [class*="avatar"], [class*="Avatar"], [class*="going"]');
+      const attendees = page.locator(
+        '[class*="attendee"], [class*="avatar"], [class*="Avatar"], [class*="going"]'
+      );
       const hasAttendees = await attendees.isVisible({ timeout: 3000 }).catch(() => false);
       if (!hasAttendees) {
         console.log('Attendees not shown in event detail - may be empty or collapsed');
@@ -65,7 +67,9 @@ test.describe('Event Detail Page', () => {
       await card.click();
       await page.waitForTimeout(1000);
 
-      const rsvp = page.locator('button:has-text("Down"), button:has-text("Maybe"), [class*="RsvpButtons"]');
+      const rsvp = page.locator(
+        'button:has-text("Down"), button:has-text("Maybe"), [class*="RsvpButtons"]'
+      );
       const hasRsvp = await rsvp.isVisible({ timeout: 3000 }).catch(() => false);
       if (!hasRsvp) {
         console.log('RSVP buttons not found in event detail');
@@ -78,7 +82,9 @@ test.describe('Event Detail Page', () => {
     await page.goto('/calendar');
     await page.waitForLoadState('networkidle');
 
-    const ownEvent = page.locator('[class*="event"][class*="own"], [data-own="true"], [class*="event"]').first();
+    const ownEvent = page
+      .locator('[class*="event"][class*="own"], [data-own="true"], [class*="event"]')
+      .first();
     const hasEvent = await ownEvent.isVisible({ timeout: 3000 }).catch(() => false);
 
     if (hasEvent) {

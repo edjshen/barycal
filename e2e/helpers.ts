@@ -4,7 +4,11 @@ export const BASE_URL = 'http://localhost:3000';
 export const DEMO_USER = { username: 'ed', password: 'barycal' };
 export const DEMO_HANDLE = 'ed';
 
-export async function login(page: Page, username = DEMO_USER.username, password = DEMO_USER.password) {
+export async function login(
+  page: Page,
+  username = DEMO_USER.username,
+  password = DEMO_USER.password
+) {
   await page.goto('/login');
   await page.getByLabel(/username/i).fill(username);
   await page.getByLabel(/password/i).fill(password);

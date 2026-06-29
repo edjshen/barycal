@@ -36,8 +36,10 @@ test.describe('UX Polish & Accessibility', () => {
     await page.waitForLoadState('networkidle');
     // Check CSS custom properties are applied
     const bgColor = await page.evaluate(() => {
-      return window.getComputedStyle(document.documentElement).getPropertyValue('--bg') ||
-             window.getComputedStyle(document.body).backgroundColor;
+      return (
+        window.getComputedStyle(document.documentElement).getPropertyValue('--bg') ||
+        window.getComputedStyle(document.body).backgroundColor
+      );
     });
     expect(bgColor).toBeTruthy();
   });
@@ -63,19 +65,21 @@ test.describe('UX Polish & Accessibility', () => {
 
   test('no visible console errors on discover page', async ({ page }) => {
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(msg.text());
     });
     await login(page);
     await page.goto('/discover');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
-    const criticalErrors = errors.filter(e => !e.includes('Warning:') && !e.includes('404'));
+    const criticalErrors = errors.filter((e) => !e.includes('Warning:') && !e.includes('404'));
     if (criticalErrors.length > 0) {
       console.log('Console errors:', criticalErrors);
     }
     // Critical JS errors should be zero
-    const jsErrors = errors.filter(e => e.toLowerCase().includes('uncaught') || e.toLowerCase().includes('typeerror'));
+    const jsErrors = errors.filter(
+      (e) => e.toLowerCase().includes('uncaught') || e.toLowerCase().includes('typeerror')
+    );
     expect(jsErrors.length).toBe(0);
   });
 
@@ -137,10 +141,7 @@ test.describe('UX Polish & Accessibility', () => {
   test('loading states appear during navigation', async ({ page }) => {
     await login(page);
     // Navigate quickly and check for loading state
-    await Promise.all([
-      page.goto('/calendar'),
-      page.waitForLoadState('domcontentloaded'),
-    ]);
+    await Promise.all([page.goto('/calendar'), page.waitForLoadState('domcontentloaded')]);
     // Just verify no infinite loading (page eventually resolves)
     await page.waitForLoadState('networkidle', { timeout: 10000 });
     expect(page.url()).toContain('/calendar');
