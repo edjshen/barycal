@@ -65,6 +65,7 @@ export async function adminStats() {
     eventsByType: byType as { type: string; n: number }[],
   };
 }
+export type AdminStats = Awaited<ReturnType<typeof adminStats>>;
 
 export async function adminListAudit(opts: { limit?: number; offset?: number; action?: string; actor?: string } = {}) {
   const { limit = 50, offset = 0, action, actor } = opts;
