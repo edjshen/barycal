@@ -1,12 +1,15 @@
 /**
- * NFC cast/catch — Android Chrome only (Web NFC / NDEFReader). Feature-detect
- * and hide the option entirely where unsupported. On iOS, a physically
- * pre-written sticker still auto-opens the URL via the OS reader, but
- * phone-to-phone Web NFC is unavailable — so we never surface it on iOS.
+ * NFC cast/catch. Two backends behind one interface:
+ *  - Native shell: the Capacitor NFC plugin (works on iOS + Android).
+ *  - Web: Web NFC / NDEFReader (Android Chrome only; absent on iOS and inside the
+ *    native WebView). The "catch" side is passive — a pre-written tag auto-opens
+ *    its URL via the OS reader, which deep-links into the app.
+ * Feature-detect and hide the option entirely where unsupported.
  */
+import { nativeNfcSupported, nativeWriteUrlTag } from '@/lib/native/bridge.js';
 
 export function nfcSupported() {
-  return typeof window !== 'undefined' && 'NDEFReader' in window;
+  return nativeNfcSupported() || (typeof window !== 'undefined' && 'NDEFReader' in window);
 }
 
 /**
@@ -14,7 +17,10 @@ export function nfcSupported() {
  * @returns {Promise<void>} resolves when the tag is written
  */
 export async function writeRoomToTag(url) {
-  if (!nfcSupported()) throw new Error('Web NFC unsupported');
+  if (nativeNfcSupported()) return nativeWriteUrlTag(url);
+  if (typeof window === 'undefined' || !('NDEFReader' in window)) {
+    throw new Error('Web NFC unsupported');
+  }
   const reader = new window.NDEFReader();
   await reader.write({ records: [{ recordType: 'url', data: url }] });
 }
