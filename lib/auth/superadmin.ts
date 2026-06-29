@@ -38,3 +38,9 @@ export async function requireSuperadmin(): Promise<{ userId: string }> {
   // assertSuperadmin narrowed input.userId to string; s.userId is that same value.
   return { userId: s.userId! };
 }
+
+// After a correct password, an account WITH confirmed MFA must still clear TOTP
+// (stay aal1 → step-up); everyone else is fully authenticated (aal2).
+export function nextAalAfterPassword(hasConfirmedMfa: boolean): 'aal1' | 'aal2' {
+  return hasConfirmedMfa ? 'aal1' : 'aal2';
+}
