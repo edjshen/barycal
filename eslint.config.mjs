@@ -14,6 +14,16 @@ import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 
+// Flat config validates a rule's plugin prefix against the plugins declared in
+// the *same* config object, so the custom block below — which sets react/* and
+// react-hooks/* severities — must register those plugins itself. Reuse the exact
+// instances eslint-config-next already loaded (in its react/react-hooks block)
+// rather than re-importing: a different instance would throw "Cannot redefine
+// plugin" when both objects match the same file, and this avoids depending on a
+// transitive package directly. ponytail: hard-fails loudly at load if next ever
+// drops these, which is the same break we're fixing — no silent fallback needed.
+const nextPlugins = nextCoreWebVitals.find((c) => c.plugins?.react)?.plugins ?? {};
+
 export default [
   {
     ignores: [
@@ -21,6 +31,10 @@ export default [
       '.next/**',
       '.open-next/**',
       '.wrangler/**',
+      // .claude/ holds local tooling state — git worktrees (each a full
+      // checkout with its own build artifacts), launch config, etc. Never
+      // project source, and recursing into worktree dist bundles OOMs ESLint.
+      '.claude/**',
       'drizzle/**',
       // public/ is static assets (incl. generated WASM glue like
       // mayfly/ggwave.js) — never hand-edited, never linted.
@@ -44,6 +58,10 @@ export default [
   ...nextCoreWebVitals,
   eslintConfigPrettier,
   {
+    plugins: {
+      react: nextPlugins.react,
+      'react-hooks': nextPlugins['react-hooks'],
+    },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
