@@ -37,11 +37,13 @@ async function main() {
     'DELETE FROM users;',
   ];
   const U: Record<string, string> = {};
+  const EMAILS: Record<string, string> = { ed: 'junting.mp3@gmail.com' };
   const user = (handle: string, name: string, bio = '', scenes: string[] = []) => {
     const uid = id();
     U[handle] = uid;
+    const email = EMAILS[handle] ?? null;
     lines.push(
-      `INSERT INTO users (id,handle,display_name,password_hash,bio,scenes,avatar,share_id,ghost,created_at) VALUES (${q(uid)},${q(handle)},${q(name)},${q(pw)},${q(bio)},${q(JSON.stringify(scenes))},${q(avatarFor(handle))},${q(handle)},0,${q(now.toISOString())});`
+      `INSERT INTO users (id,handle,email,display_name,password_hash,bio,scenes,avatar,share_id,ghost,created_at) VALUES (${q(uid)},${q(handle)},${q(email)},${q(name)},${q(pw)},${q(bio)},${q(JSON.stringify(scenes))},${q(avatarFor(handle))},${q(handle)},0,${q(now.toISOString())});`
     );
   };
   user('ed', 'Ed Shen', 'techno, climbing, natural wine. always down for lunch.', [
