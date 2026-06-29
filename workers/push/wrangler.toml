@@ -1,0 +1,37 @@
+# Barycal push-reminder scheduler — a SEPARATE Cloudflare Worker (sibling of
+# barycal-room), deployed independently of the Next/OpenNext site. It owns ONLY
+# the cron schedule: each tick calls the main app's /api/cron/reminders route
+# (bearer-authed with CRON_SECRET), which does the real work. The logic lives in
+# the app route so it can reuse the app's DB queries + FCM sender — OpenNext's
+# generated worker can't host a scheduled() handler of its own.
+#
+# Deploy (from this directory):
+#   npm install
+#   npx wrangler login
+#   npx wrangler secret put CRON_SECRET -c ./wrangler.toml   # match the app worker
+#   npm run deploy                                           # wrangler deploy -c ./wrangler.toml
+#
+# Use `npm run deploy` (NOT bare `npx wrangler deploy`): wrangler's config
+# discovery walks UP the tree and would otherwise pick the repo-root
+# wrangler.jsonc. The npm scripts pin `-c ./wrangler.toml`.
+
+name = "barycal-push"
+main = "src/worker.js"
+# Same account as the main site + room relay (repo-root wrangler.jsonc).
+account_id = "1fb5ac4e609c1d4f4b9171e62d5127c1"
+compatibility_date = "2026-05-28"
+
+# 13:00 UTC daily (~9am ET / 6am PT). Multiple lines = multiple fires per day;
+# the digest is naturally one-per-user-per-run, so a single daily tick avoids
+# duplicate notifications. Adjust to taste.
+[triggers]
+crons = ["0 13 * * *"]
+
+# APP_URL is the deployed app origin the scheduler calls. CRON_SECRET is a Worker
+# SECRET (set via `wrangler secret put CRON_SECRET`), NOT a var — it must match
+# the value set on the app worker so /api/cron/reminders accepts the call.
+[vars]
+APP_URL = "https://barycal.com"
+
+[observability]
+enabled = true

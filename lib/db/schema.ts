@@ -130,9 +130,29 @@ export const rateLimits = sqliteTable(
   (t) => ({ uniq: unique('rate_limits_scope_k').on(t.scope, t.k) })
 );
 
+// Device push-notification tokens (one row per device install), populated by the
+// native iOS/Android shell via POST /api/push/register; web visitors never write
+// here. `token` is the FCM registration token (globally unique per install), so
+// it's the conflict target — a token that moves to a newly signed-in user
+// updates in place rather than duplicating.
+export const pushTokens = sqliteTable(
+  'push_tokens',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id),
+    token: text('token').notNull().unique(),
+    platform: text('platform', { enum: ['ios', 'android', 'web'] }).notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (t) => ({ byUser: index('push_tokens_user').on(t.userId) })
+);
+
 export type User = typeof users.$inferSelect;
 export type Connection = typeof connections.$inferSelect;
 export type Placement = typeof placements.$inferSelect;
 // Named BarycalEvent (not Event) to avoid shadowing the global DOM/Workers `Event`.
 export type BarycalEvent = typeof events.$inferSelect;
 export type Attendance = typeof attendance.$inferSelect;
+export type PushToken = typeof pushTokens.$inferSelect;

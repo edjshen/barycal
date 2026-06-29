@@ -14,3 +14,10 @@ node_modules/
 
 # The room relay is a separate package with its own toolchain; format it there.
 workers/room/node_modules/
+
+# Native Capacitor shell: generated projects + the loading webDir, plus the
+# extensionless apple-app-site-association (Prettier can't infer its parser).
+native/
+ios/
+android/
+public/.well-known/

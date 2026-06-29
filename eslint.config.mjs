@@ -31,6 +31,10 @@ export default [
       // The room relay is a separate JS Worker package with its own runtime
       // globals and toolchain — lint it in workers/room as a follow-up.
       'workers/**',
+      // Native Capacitor shell: generated iOS/Android projects + loading webDir.
+      'native/**',
+      'ios/**',
+      'android/**',
       '*.config.mjs',
       '*.config.ts',
       '*.config.js',
