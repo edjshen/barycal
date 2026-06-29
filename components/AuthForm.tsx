@@ -31,6 +31,7 @@ export default function AuthForm({
           name="username"
           type="text"
           autoCapitalize="off"
+          autoComplete="username"
           placeholder="ed"
         />
       </div>
@@ -42,9 +43,15 @@ export default function AuthForm({
       )}
       <div className="field">
         <label htmlFor="auth-password">Password</label>
-        <input id="auth-password" name="password" type="password" placeholder="••••••••" />
+        <input
+          id="auth-password"
+          name="password"
+          type="password"
+          autoComplete={reg ? 'new-password' : 'current-password'}
+          placeholder="••••••••"
+        />
       </div>
-      <button className="btn solid block" disabled={pending}>
+      <button type="submit" className="btn solid block" disabled={pending}>
         {reg ? 'Create account' : 'Log in'}
       </button>
       {state?.error && <div className="error">{state.error}</div>}
