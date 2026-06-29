@@ -22,7 +22,9 @@ export default function AuthWall({
       <p className="tag">your life in orbit</p>
       <div className="card" style={{ padding: 20, textAlign: 'center' }}>
         <div style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 500 }}>{title}</div>
-        <p style={{ color: 'var(--dim)', fontSize: 14, lineHeight: 1.6, marginTop: 8 }}>{message}</p>
+        <p style={{ color: 'var(--dim)', fontSize: 14, lineHeight: 1.6, marginTop: 8 }}>
+          {message}
+        </p>
       </div>
       <Link className="btn solid block" style={{ marginTop: 16 }} href={withNext('/login', next)}>
         Log in

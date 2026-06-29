@@ -3,7 +3,12 @@ import Link from 'next/link';
 
 // Branded recovery UI for unexpected render / server-action errors, so a thrown
 // error shows a retry path instead of Next's raw error screen.
-export default function Error({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function Error({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return (
     <div className="auth">
       <div className="logo">
