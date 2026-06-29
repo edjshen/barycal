@@ -98,6 +98,24 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           exit $STATUS
 
+      - name: Set preview-only SESSION_SECRET
+        id: secret
+        if: success() && steps.preflight.outputs.skip != 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          # The per-PR preview Worker does NOT inherit the prod SESSION_SECRET
+          # (that's a real Worker secret, deliberately absent from the committed
+          # wrangler.jsonc). Without it, getSession() throws on every request and
+          # the whole app 500s — which is why the smoke below failed on every real
+          # branch, main included. Set an ephemeral, preview-only secret (≥32 chars,
+          # as iron-session requires); piped via stdin so the value is never echoed.
+          # It's regenerated each run and is never the prod value, so preview session
+          # cookies are not valid against prod even though this Worker binds prod D1.
+          SECRET=$(openssl rand -hex 32)
+          printf '%s' "$SECRET" | npx wrangler secret put SESSION_SECRET \
+            --name barycal-pr-${{ github.event.pull_request.number }}
+
       - name: Comment preview URL on success
         if: success() && steps.preflight.outputs.skip != 'true'
         uses: actions/github-script@v9
