@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { getDb } from './index';
 import { mfaCredentials, mfaRecoveryCodes } from './schema';
@@ -42,4 +42,26 @@ export async function replaceRecoveryCodes(userId: string, hashes: string[]) {
       hashes.map((codeHash) => ({ id: nanoid(), userId, codeHash, usedAt: null }))
     ),
   ]);
+}
+
+export async function consumeRecoveryCode(
+  userId: string,
+  code: string,
+  verify: (code: string, hash: string) => Promise<boolean>
+): Promise<boolean> {
+  const db = getDb();
+  const rows = await db
+    .select()
+    .from(mfaRecoveryCodes)
+    .where(and(eq(mfaRecoveryCodes.userId, userId), isNull(mfaRecoveryCodes.usedAt)));
+  for (const r of rows) {
+    if (await verify(code, r.codeHash)) {
+      await db
+        .update(mfaRecoveryCodes)
+        .set({ usedAt: new Date().toISOString() })
+        .where(eq(mfaRecoveryCodes.id, r.id));
+      return true;
+    }
+  }
+  return false;
 }
