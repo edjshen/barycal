@@ -4,6 +4,7 @@ import { sql } from 'drizzle-orm';
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   handle: text('handle').notNull().unique(),
+  email: text('email').unique(),
   displayName: text('display_name').notNull(),
   passwordHash: text('password_hash').notNull(),
   bio: text('bio').notNull().default(''),
@@ -149,6 +150,54 @@ export const pushTokens = sqliteTable(
   (t) => ({ byUser: index('push_tokens_user').on(t.userId) })
 );
 
+export const platformAdmins = sqliteTable('platform_admins', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  grantedAt: text('granted_at').notNull(),
+});
+
+export const adminAuditLog = sqliteTable(
+  'admin_audit_log',
+  {
+    id: text('id').primaryKey(),
+    // append-only; no FK so the audit trail outlives any deleted user
+    actorId: text('actor_id').notNull(),
+    action: text('action').notNull(),
+    targetType: text('target_type').notNull(),
+    targetId: text('target_id').notNull(),
+    summary: text('summary').notNull(),
+    meta: text('meta', { mode: 'json' }).$type<Record<string, unknown>>(),
+    createdAt: text('created_at').notNull(),
+  },
+  (t) => ({
+    byCreated: index('audit_created').on(t.createdAt),
+    byActor: index('audit_actor').on(t.actorId),
+  })
+);
+
+export const mfaCredentials = sqliteTable('mfa_credentials', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  secretEnc: text('secret_enc').notNull(),
+  confirmedAt: text('confirmed_at'),
+  createdAt: text('created_at').notNull(),
+});
+
+export const mfaRecoveryCodes = sqliteTable(
+  'mfa_recovery_codes',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    codeHash: text('code_hash').notNull(),
+    usedAt: text('used_at'),
+  },
+  (t) => ({ byUser: index('recovery_user').on(t.userId) })
+);
+
 export type User = typeof users.$inferSelect;
 export type Connection = typeof connections.$inferSelect;
 export type Placement = typeof placements.$inferSelect;
@@ -156,3 +205,7 @@ export type Placement = typeof placements.$inferSelect;
 export type BarycalEvent = typeof events.$inferSelect;
 export type Attendance = typeof attendance.$inferSelect;
 export type PushToken = typeof pushTokens.$inferSelect;
+export type PlatformAdmin = typeof platformAdmins.$inferSelect;
+export type AdminAuditRow = typeof adminAuditLog.$inferSelect;
+export type MfaCredential = typeof mfaCredentials.$inferSelect;
+export type MfaRecoveryCode = typeof mfaRecoveryCodes.$inferSelect;

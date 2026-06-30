@@ -9,6 +9,10 @@ import { avatarFor } from '../domain/helpers';
 import { consumeRateLimit, clientIp } from '../ratelimit';
 import { LIMITS } from '../validate';
 import { safeNext } from '../url';
+import { getMfaCredential, consumeRecoveryCode } from '../db/mfa-queries';
+import { decryptSecret } from '../auth/crypto';
+import { verifyTotp, verifyRecoveryCode } from '../auth/mfa';
+import { nextAalAfterPassword } from '../auth/superadmin';
 
 function toHandle(s: string) {
   return String(s || '')
@@ -67,10 +71,15 @@ export async function login(_prev: AuthState, form: FormData): Promise<AuthState
   const s = await getSession();
   s.userId = u.id;
   s.handle = u.handle;
+  const mfa = await getMfaCredential(u.id);
+  s.aal = nextAalAfterPassword(!!mfa?.confirmedAt);
   await s.save();
-  // Return the user to the page that sent them to log in (e.g. a private event
-  // link), falling back to the app home. `next` is validated to a same-origin path.
-  redirect(safeNext(form.get('next')) ?? '/discover');
+  // MFA gate takes precedence: an aal1 (MFA-enrolled, not-yet-stepped-up) user must
+  // clear /login/mfa first. Everyone else returns to their validated `next` (e.g. a
+  // private event link), falling back to the app home.
+  // ponytail: `next` is dropped if the user also needs step-up (only MFA accounts);
+  // they land on /discover after. Thread `next` through /login/mfa if that matters.
+  redirect(s.aal === 'aal1' ? '/login/mfa' : (safeNext(form.get('next')) ?? '/discover'));
 }
 
 export async function register(_prev: AuthState, form: FormData): Promise<AuthState> {
@@ -107,6 +116,7 @@ export async function register(_prev: AuthState, form: FormData): Promise<AuthSt
   const s = await getSession();
   s.userId = id;
   s.handle = handle;
+  s.aal = 'aal2';
   await s.save();
   // Same as login: honor a validated return URL so a new signup that started
   // from a shared event/profile link lands back there to RSVP or follow.
@@ -117,4 +127,31 @@ export async function logout() {
   const s = await getSession();
   s.destroy();
   redirect('/login');
+}
+
+export async function verifyMfaStepUp(token: string): Promise<{ ok: boolean }> {
+  const s = await getSession();
+  if (!s.userId) return { ok: false };
+  const ip = await clientIp();
+  if (!(await underLimit('auth.mfa.verify', s.userId, 5, TEN_MIN))) return { ok: false };
+  if (!(await underLimit('auth.mfa.ip', ip, 15, TEN_MIN))) return { ok: false };
+  const cred = await getMfaCredential(s.userId);
+  if (!cred?.confirmedAt) return { ok: false }; // INVARIANT: TOTP only against a CONFIRMED secret
+  if (!verifyTotp(await decryptSecret(cred.secretEnc), token)) return { ok: false };
+  s.aal = 'aal2';
+  await s.save();
+  return { ok: true };
+}
+
+export async function useRecoveryCode(code: string): Promise<{ ok: boolean }> {
+  const s = await getSession();
+  if (!s.userId) return { ok: false };
+  const ip = await clientIp();
+  if (!(await underLimit('auth.mfa.verify', s.userId, 5, TEN_MIN))) return { ok: false };
+  if (!(await underLimit('auth.mfa.ip', ip, 15, TEN_MIN))) return { ok: false };
+  const ok = await consumeRecoveryCode(s.userId, code, verifyRecoveryCode);
+  if (!ok) return { ok: false };
+  s.aal = 'aal2';
+  await s.save();
+  return { ok: true };
 }

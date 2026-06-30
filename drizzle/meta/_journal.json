@@ -43,6 +43,13 @@
       "when": 1782728891746,
       "tag": "0005_good_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1782795046436,
+      "tag": "0006_red_ironclad",
+      "breakpoints": true
     }
   ]
 }

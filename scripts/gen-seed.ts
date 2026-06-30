@@ -37,11 +37,13 @@ async function main() {
     'DELETE FROM users;',
   ];
   const U: Record<string, string> = {};
+  const EMAILS: Record<string, string> = { ed: 'junting.mp3@gmail.com' };
   const user = (handle: string, name: string, bio = '', scenes: string[] = []) => {
     const uid = id();
     U[handle] = uid;
+    const email = EMAILS[handle] ?? null;
     lines.push(
-      `INSERT INTO users (id,handle,display_name,password_hash,bio,scenes,avatar,share_id,ghost,created_at) VALUES (${q(uid)},${q(handle)},${q(name)},${q(pw)},${q(bio)},${q(JSON.stringify(scenes))},${q(avatarFor(handle))},${q(handle)},0,${q(now.toISOString())});`
+      `INSERT INTO users (id,handle,email,display_name,password_hash,bio,scenes,avatar,share_id,ghost,created_at) VALUES (${q(uid)},${q(handle)},${q(email)},${q(name)},${q(pw)},${q(bio)},${q(JSON.stringify(scenes))},${q(avatarFor(handle))},${q(handle)},0,${q(now.toISOString())});`
     );
   };
   user('ed', 'Ed Shen', 'techno, climbing, natural wine. always down for lunch.', [
@@ -214,6 +216,9 @@ async function main() {
   attend(showPast, 'ed', 'going');
   attend(showPast, 'theo', 'down');
 
+  lines.push(
+    `INSERT INTO platform_admins (user_id, granted_at) SELECT id, '2026-06-29T00:00:00.000Z' FROM users WHERE handle = 'ed' ON CONFLICT (user_id) DO NOTHING;`
+  );
   writeFileSync('drizzle/seed.sql', lines.join('\n') + '\n');
   console.log(`Wrote drizzle/seed.sql (${lines.length} statements). Demo login → ed / orbit`);
 }
