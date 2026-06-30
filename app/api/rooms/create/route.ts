@@ -12,6 +12,7 @@ import { normalizePhoneUS } from '@/lib/phone';
 import { consumeRateLimit, verifyOtpOrReject, isValidRoomId } from '@/lib/mayfly/server/phone-gate';
 import { logRoomCreated } from '@/lib/mayfly/server/rooms-log';
 import { hasConsent, logConsent } from '@/lib/mayfly/server/consent';
+import { mintRelayToken } from '@/lib/mayfly/server/relay-admission';
 
 const SCOPE = 'rooms.create';
 
@@ -59,5 +60,9 @@ export async function POST(request: Request): Promise<Response> {
     console.error('[rooms.create] log failed:', (e as Error)?.message);
   }
 
-  return Response.json({ ok: true });
+  // Best-effort like the logging above: a mint hiccup must never 500 a request
+  // whose consent/log already landed — degrade to a null token (tokenless
+  // connect, which the relay allows while ROOM_RELAY_SECRET is unset).
+  const relayToken = await mintRelayToken(b?.roomId as string).catch(() => null);
+  return Response.json({ ok: true, relayToken });
 }
