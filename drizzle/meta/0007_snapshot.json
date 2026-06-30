@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a3a8072f-e109-4cc7-8097-e9254b21df7b",
+  "id": "e6713393-5df6-490b-a8e7-0da47c9d2a3d",
   "prevId": "fc0d9f14-b5f2-4592-b9e6-311e24b248dc",
   "tables": {
     "admin_audit_log": {
@@ -1935,13 +1935,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
-        },
-        "platform_role": {
-          "name": "platform_role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",

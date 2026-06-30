@@ -15,8 +15,6 @@ export const users = sqliteTable('users', {
   avatar: text('avatar').notNull(),
   shareId: text('share_id').notNull().unique(),
   ghost: integer('ghost', { mode: 'boolean' }).notNull().default(false),
-  // Platform-staff flag gating the /admin console. null = ordinary partygoer.
-  platformRole: text('platform_role', { enum: ['admin'] }),
   createdAt: text('created_at').notNull(),
 });
 
@@ -383,9 +381,10 @@ export const rewardRsvps = sqliteTable(
 );
 
 // ============================== Platform admin & MFA ==============================
-// Superadmin console (#37) + MFA hardening (#39). The /admin console is gated by
-// users.platformRole; platform_admins records the explicit grant, admin_audit_log
-// is append-only, and the mfa_* tables back TOTP + single-use recovery codes.
+// Superadmin console (#37) + MFA hardening (#39). /superadmin (including the
+// rewards admin) is gated via requireSuperadmin: platform_admins records the
+// explicit grant, admin_audit_log is append-only, and the mfa_* tables back TOTP
+// + single-use recovery codes.
 
 export const platformAdmins = sqliteTable('platform_admins', {
   userId: text('user_id')

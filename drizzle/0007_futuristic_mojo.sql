@@ -151,5 +151,4 @@ CREATE TABLE `reward_rsvps` (
 	FOREIGN KEY (`event_id`) REFERENCES `reward_events`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `reward_rsvps_user_event` ON `reward_rsvps` (`user_id`,`event_id`);--> statement-breakpoint
-ALTER TABLE `users` ADD `platform_role` text;
+CREATE UNIQUE INDEX `reward_rsvps_user_event` ON `reward_rsvps` (`user_id`,`event_id`);

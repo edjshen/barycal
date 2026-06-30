@@ -1,14 +1,13 @@
 'use server';
-// Platform-admin server actions for the /admin console. Every action begins by
-// asserting the caller is a platform admin (requireAdmin). Server Actions are
-// directly-invocable HTTP endpoints, so this gate is the real authorization —
-// the /admin layout redirect is only a UI convenience.
+// Rewards-admin server actions for the /superadmin/rewards console. Every action
+// begins by asserting the caller is a platform admin via requireSuperadmin
+// (platform_admins + MFA step-up). Server Actions are directly-invocable HTTP
+// endpoints, so this gate is the real authorization — the layout is only UI.
 
 import { revalidatePath } from 'next/cache';
 import { and, eq } from 'drizzle-orm';
 import { getDb } from '../db';
 import {
-  users,
   platformPerks,
   globalRewardRules,
   pointsLedger,
@@ -17,7 +16,7 @@ import {
   orgPerks,
 } from '../db/schema';
 import { PLATFORM_SCOPE, orgScope } from '../domain/rewards';
-import { getSession } from '../auth/session';
+import { requireSuperadmin } from '../auth/superadmin';
 import { clampStr } from '../validate';
 
 const PERK_TITLE_MAX = 120;
@@ -29,17 +28,10 @@ const SOURCES = ['first-party', 'sponsor', 'partner', 'org'] as const;
 type Fulfillment = (typeof FULFILLMENTS)[number];
 type Source = (typeof SOURCES)[number];
 
-/** Load the session user and throw unless they are a platform admin. */
+/** Assert the caller is a platform admin (platform_admins + MFA) and return their id. */
 async function requireAdmin(): Promise<string> {
-  const s = await getSession();
-  if (!s.userId) throw new Error('UNAUTHORIZED');
-  const rows = await getDb()
-    .select({ id: users.id, platformRole: users.platformRole })
-    .from(users)
-    .where(eq(users.id, s.userId))
-    .limit(1);
-  if (rows[0]?.platformRole !== 'admin') throw new Error('FORBIDDEN');
-  return s.userId;
+  const { userId } = await requireSuperadmin();
+  return userId;
 }
 
 // -------------------------- helpers --------------------------
@@ -146,8 +138,8 @@ export async function savePlatformPerk(input: PerkInput): Promise<{ id: string }
     .values({ id, ...set, createdAt: new Date().toISOString() })
     .onConflictDoUpdate({ target: platformPerks.id, set });
 
-  revalidatePath('/admin/perks');
-  revalidatePath('/admin');
+  revalidatePath('/superadmin/rewards/perks');
+  revalidatePath('/superadmin/rewards');
   return { id };
 }
 
@@ -155,8 +147,8 @@ export async function deletePlatformPerk(id: unknown): Promise<void> {
   await requireAdmin();
   if (typeof id !== 'string' || !id) throw new Error('Bad request');
   await getDb().delete(platformPerks).where(eq(platformPerks.id, id));
-  revalidatePath('/admin/perks');
-  revalidatePath('/admin');
+  revalidatePath('/superadmin/rewards/perks');
+  revalidatePath('/superadmin/rewards');
 }
 
 // ========================== Global reward rules ==========================
@@ -184,7 +176,7 @@ export async function saveGlobalRules(input: RulesInput): Promise<{ id: string }
       .update(globalRewardRules)
       .set({ basePoints, bonuses, updatedAt: now })
       .where(eq(globalRewardRules.id, existing[0].id));
-    revalidatePath('/admin/rules');
+    revalidatePath('/superadmin/rewards/rules');
     return { id: existing[0].id };
   }
 
@@ -192,7 +184,7 @@ export async function saveGlobalRules(input: RulesInput): Promise<{ id: string }
   await db
     .insert(globalRewardRules)
     .values({ id, basePoints, bonuses, active: true, updatedAt: now });
-  revalidatePath('/admin/rules');
+  revalidatePath('/superadmin/rewards/rules');
   return { id };
 }
 
@@ -240,7 +232,7 @@ export async function voidCheckIn(checkInId: unknown): Promise<void> {
   }
   if (reversals.length) await db.insert(pointsLedger).values(reversals);
 
-  revalidatePath('/admin/moderation');
+  revalidatePath('/superadmin/rewards/moderation');
 }
 
 /**
@@ -292,8 +284,8 @@ export async function voidRedemption(redemptionId: unknown): Promise<void> {
     });
   }
 
-  revalidatePath('/admin/moderation');
-  revalidatePath('/admin/fulfillment');
+  revalidatePath('/superadmin/rewards/moderation');
+  revalidatePath('/superadmin/rewards/fulfillment');
 }
 
 // ============================== Fulfillment ==============================
@@ -306,5 +298,5 @@ export async function markFulfilled(redemptionId: unknown): Promise<void> {
     .update(redemptions)
     .set({ status: 'redeemed', redeemedAt: new Date().toISOString() })
     .where(and(eq(redemptions.id, redemptionId), eq(redemptions.status, 'issued')));
-  revalidatePath('/admin/fulfillment');
+  revalidatePath('/superadmin/rewards/fulfillment');
 }

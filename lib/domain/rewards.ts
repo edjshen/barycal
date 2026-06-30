@@ -102,7 +102,7 @@ export type GlobalRules = Pick<GlobalRewardRules, 'basePoints' | 'bonuses' | 'ac
 
 /**
  * Out-of-the-box global economy, used when no `global_reward_rules` row is active yet so points flow
- * on day one (a platform admin can override via /admin/rules). Numbers are the v1 economy baseline:
+ * on day one (a platform admin can override via /superadmin/rewards/rules). Numbers are the v1 baseline:
  * 100 per check-in, +50 for a cross-org streak (a prior check-in within 14 days), +150 once you've
  * been to 3+ different orgs.
  */
