@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import Segmented from './primitives/Segmented';
 import EventCard from './EventCard';
 import WeekGrid from './WeekGrid';
 import MonthGrid from './MonthGrid';
+import CreateButton from './CreateButton';
 import { dayLabel } from '@/lib/format';
 
 export default function DiscoverClient({
@@ -11,11 +12,13 @@ export default function DiscoverClient({
   meId,
   week,
   month,
+  todayISO,
 }: {
   events: any[];
   meId: string;
   week?: any;
   month?: any;
+  todayISO?: string;
 }) {
   const [view, setView] = useState('discover');
   const seg = (
@@ -40,7 +43,7 @@ export default function DiscoverClient({
     return (
       <>
         {seg}
-        <MonthGrid events={month?.events ?? []} monthISO={month?.monthISO} />
+        <MonthGrid events={month?.events ?? []} monthISO={month?.monthISO} todayISO={todayISO} />
       </>
     );
   let last = '';
@@ -51,6 +54,7 @@ export default function DiscoverClient({
           <div className="kicker">Discover</div>
           <div className="h-title">This week</div>
         </div>
+        <CreateButton />
       </div>
       {seg}
       {events.length === 0 && (
@@ -60,22 +64,24 @@ export default function DiscoverClient({
           Tap ＋ to start something.
         </div>
       )}
-      {events.map((ev) => {
-        const dl = dayLabel(ev.startTime);
-        const head =
-          dl !== last ? (
-            <div className="daylabel" key={'d' + ev.id}>
-              {dl}
-            </div>
-          ) : null;
-        last = dl;
-        return (
-          <div key={ev.id}>
-            {head}
-            <EventCard ev={ev} meId={meId} />
-          </div>
-        );
-      })}
+      <div className="feed">
+        {events.map((ev) => {
+          const dl = dayLabel(ev.startTime);
+          const head =
+            dl !== last ? (
+              <div className="daylabel" key={'d' + ev.id}>
+                {dl}
+              </div>
+            ) : null;
+          last = dl;
+          return (
+            <Fragment key={ev.id}>
+              {head}
+              <EventCard ev={ev} meId={meId} />
+            </Fragment>
+          );
+        })}
+      </div>
       {events.length > 0 && <div className="footnote">— that's your week —</div>}
     </>
   );

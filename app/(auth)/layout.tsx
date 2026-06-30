@@ -3,6 +3,6 @@ import { getSession } from '@/lib/auth/session';
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const s = await getSession();
-  if (s.userId) redirect('/discover');
+  if (s.userId && s.aal !== 'aal1') redirect('/discover');
   return <div className="auth">{children}</div>;
 }

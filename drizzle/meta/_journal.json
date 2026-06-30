@@ -40,15 +40,22 @@
     {
       "idx": 5,
       "version": "6",
-      "when": 1782724925822,
-      "tag": "0005_sudden_calypso",
+      "when": 1782728891746,
+      "tag": "0005_good_metal_master",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "6",
-      "when": 1782727004094,
-      "tag": "0006_spooky_grim_reaper",
+      "when": 1782792446480,
+      "tag": "0006_red_alex_wilder",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1782799919738,
+      "tag": "0007_thankful_rogue",
       "breakpoints": true
     }
   ]

@@ -1,3 +1,18 @@
+@font-face {
+  font-family: 'Righteous';
+  src: url('/fonts/Righteous.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Searider Falcon';
+  src: url('/fonts/SeariderFalcon.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Barycal design system — dark / editorial. Ported from docs/mocks. */
 :root {
   --bg: #0c0b10;
@@ -15,8 +30,8 @@
   --violet: #9b8cff;
   --amber: #ffc178;
   --grad: linear-gradient(135deg, #ff8a5b 0%, #ff5e87 100%);
-  --serif: ui-serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif;
-  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --serif: 'Searider Falcon', ui-serif, Georgia, serif;
+  --sans: 'Righteous', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -1896,4 +1911,775 @@ select {
   font-size: 18px;
   font-weight: 700;
   color: #e7c977;
+}
+/* ============================================================
+   Responsive base — affordances that only surface on desktop
+   ============================================================ */
+/* sidebar-only chrome stays hidden in the mobile bottom bar */
+.nav .brand {
+  display: none;
+}
+.nav .cal-tab .nav-label {
+  display: none;
+}
+
+/* ephemeral-rooms launcher (mobile: floats above the tab bar) */
+.rooms-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  z-index: 40;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  backdrop-filter: blur(12px);
+  color: var(--ink);
+  box-shadow: 0 8px 22px -8px rgba(0, 0, 0, 0.6);
+  font-size: 20px;
+  text-decoration: none;
+}
+
+/* pointer-device polish — touch screens stay untouched */
+@media (hover: hover) {
+  .card {
+    transition:
+      border-color 0.16s ease,
+      background 0.16s ease;
+  }
+  .app-shell .card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .btn {
+    transition:
+      opacity 0.15s ease,
+      background 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.15s ease;
+  }
+  .btn:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .btn.solid:hover {
+    filter: brightness(1.05);
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .nav a,
+  .nav button {
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+  .reg,
+  .up {
+    transition: background 0.15s ease;
+  }
+  .rooms-fab {
+    transition:
+      transform 0.15s ease,
+      background 0.15s ease;
+  }
+  .rooms-fab:hover {
+    transform: translateY(-2px);
+  }
+  .seg button {
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+}
+
+/* ============================================================
+   Desktop — turn the phone column into a real desktop app:
+   a persistent left rail + a de-capped, editorial content area
+   ============================================================ */
+@media (min-width: 860px) {
+  :root {
+    --sbw: 248px;
+    --navh: 0px;
+  }
+
+  /* ---- left rail (the old bottom nav, re-laid-out) ---- */
+  .nav {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    transform: none;
+    width: var(--sbw);
+    max-width: var(--sbw);
+    height: 100vh;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 3px;
+    padding: 26px 16px;
+    border-top: 0;
+    border-right: 1px solid var(--bd2);
+    background: linear-gradient(180deg, var(--bg2), var(--bg));
+    backdrop-filter: none;
+    overflow-y: auto;
+  }
+  .nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 4px 12px 24px;
+    color: var(--ink);
+  }
+  .nav .brand-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--grad);
+    position: relative;
+    box-shadow: 0 0 22px rgba(255, 94, 135, 0.45);
+    flex: none;
+  }
+  .nav .brand-mark::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: var(--bg2);
+  }
+  .nav .brand-name {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+
+  .nav a,
+  .nav button {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 13px;
+    width: 100%;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--dim);
+    padding: 11px 13px;
+    border-radius: 13px;
+  }
+  .nav a:hover {
+    background: var(--card2);
+    color: var(--ink);
+  }
+  .nav a.on,
+  .nav button.on {
+    background: var(--card);
+    color: var(--ink);
+  }
+  .nav svg {
+    width: 21px;
+    height: 21px;
+    stroke-width: 1.8;
+  }
+  /* un-FAB the calendar entry so it reads as a normal rail item */
+  .nav .cal-tab {
+    margin: 0;
+  }
+  .nav .cal-tab .create {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    margin: 0;
+    display: inline-flex;
+  }
+  .nav .cal-tab .create svg {
+    stroke: currentColor;
+    stroke-width: 1.8;
+    width: 21px;
+    height: 21px;
+  }
+  .nav .cal-tab.on .create svg {
+    stroke: currentColor;
+  }
+  .nav .cal-tab .nav-label {
+    display: inline;
+  }
+
+  /* ---- content shell: drop the 480 cap, sit beside the rail ---- */
+  .app-shell {
+    max-width: none;
+    margin: 0 0 0 var(--sbw);
+    border-left: 0;
+    border-right: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(1100px 700px at 28% -12%, #16121f 0%, rgba(22, 18, 31, 0) 60%),
+      linear-gradient(180deg, var(--bg2), var(--bg));
+  }
+  .app-shell .main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 48px 88px;
+    min-height: auto;
+  }
+  .app-shell .h-title {
+    font-size: 42px;
+  }
+  .app-shell .seg {
+    max-width: 440px;
+  }
+
+  /* ---- card & people feeds flow into a responsive grid ---- */
+  .feed {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
+  .feed .daylabel {
+    grid-column: 1/-1;
+    margin: 20px 2px 4px;
+  }
+  .feed .card {
+    margin-bottom: 0;
+  }
+
+  /* ---- profile: identity rail + upcoming, side by side ---- */
+  .app-shell .banner {
+    height: 152px;
+    margin: -48px -48px 0;
+    border-radius: 0 0 26px 26px;
+  }
+  .pf-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 44px;
+    align-items: start;
+    margin-top: 0;
+  }
+  .pf-grid .pf-aside {
+    margin-top: -48px;
+    position: sticky;
+    top: 48px;
+  }
+  .pf-grid .pf-main {
+    padding-top: 8px;
+  }
+  .pf-grid .pf-main .kicker:first-child {
+    margin-top: 0 !important;
+  }
+  .pf-grid .statline {
+    margin-top: 26px;
+    border-top: 1px solid var(--bd2);
+  }
+
+  /* ---- full-bleed calendar inside the content area ---- */
+  .app-shell .main:has(.cal-app) {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ---- floating actions: anchor to the viewport corner ---- */
+  .rooms-fab {
+    right: 24px;
+    bottom: 24px;
+  }
+  .cal-fab {
+    right: 24px;
+    bottom: 88px;
+  }
+
+  /* ---- modals become centered dialogs instead of bottom sheets ---- */
+  .scrim {
+    align-items: center;
+  }
+  .sheet {
+    max-width: 460px;
+    border-radius: 22px;
+    max-height: 86vh;
+    margin: 0 20px;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7);
+  }
+  .sheet .grab {
+    display: none;
+  }
+
+  /* ---- auth screens read as a centered card ---- */
+  .auth {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* roomier rail + content on very wide screens */
+@media (min-width: 1280px) {
+  .app-shell .main {
+    max-width: 840px;
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+}
+
+/* ───────────────────────── landing page ───────────────────────── */
+.lp {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+.lp::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(800px 520px at 50% 12%, rgba(255, 94, 135, 0.1), transparent 60%),
+    radial-gradient(700px 480px at 82% 78%, rgba(155, 140, 255, 0.08), transparent 62%),
+    radial-gradient(620px 420px at 12% 70%, rgba(95, 211, 166, 0.06), transparent 60%);
+}
+.lp-grad {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* nav */
+.lp-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px 18px;
+}
+.lp-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0.01em;
+}
+.lp-brand.small {
+  font-size: 17px;
+}
+.lp-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--grad);
+  position: relative;
+  box-shadow: 0 0 18px rgba(255, 94, 135, 0.5);
+  flex: none;
+}
+.lp-mark::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: #0b0a10;
+}
+.lp-nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lp-ghost {
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--dim);
+  padding: 9px 14px;
+  border-radius: 999px;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+.lp-ghost:hover {
+  color: var(--ink);
+  background: var(--card);
+}
+.lp-navbtn {
+  padding: 9px 18px;
+}
+
+/* hero */
+.lp-hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 30px;
+  padding: 120px 20px 64px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+.lp-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.lp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  padding: 7px 14px;
+  backdrop-filter: blur(8px);
+}
+.lp-ping {
+  position: relative;
+  display: inline-flex;
+  width: 7px;
+  height: 7px;
+}
+.lp-ping::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent2);
+  animation: lp-ping 1.8s ease-out infinite;
+}
+.lp-ping::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent2);
+}
+@keyframes lp-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  80%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.lp-h1 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(46px, 9vw, 84px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+.lp-sub {
+  max-width: 560px;
+  color: var(--dim);
+  font-size: clamp(15px, 2.4vw, 18px);
+  line-height: 1.55;
+}
+.lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 4px;
+}
+.lp-big {
+  font-size: 14.5px;
+  padding: 13px 24px;
+}
+
+/* orbit */
+.lp-orbit {
+  --o: 400px;
+  position: relative;
+  width: var(--o);
+  height: var(--o);
+  flex: none;
+  margin-top: 8px;
+}
+.lp-glow {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 94, 135, 0.22), transparent 65%);
+  filter: blur(14px);
+}
+.lp-ring {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 50%;
+  border: 1px dashed var(--bd);
+  animation: lp-spin linear infinite;
+}
+.lp-ring.r3 {
+  width: var(--o);
+  height: var(--o);
+  animation-duration: 42s;
+}
+.lp-ring.r2 {
+  width: calc(var(--o) * 0.72);
+  height: calc(var(--o) * 0.72);
+  animation-duration: 30s;
+  animation-direction: reverse;
+}
+.lp-ring.r1 {
+  width: calc(var(--o) * 0.44);
+  height: calc(var(--o) * 0.44);
+  animation-duration: 20s;
+}
+@keyframes lp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.lp-sat {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.lp-dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px currentColor;
+}
+.lp-node {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.lp-node-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(12, 11, 16, 0.72);
+  border: 1px solid var(--bd);
+  backdrop-filter: blur(6px);
+  animation: lp-spin linear infinite;
+}
+.r1 .lp-node-in {
+  animation-duration: 20s;
+  animation-direction: reverse;
+}
+.r2 .lp-node-in {
+  animation-duration: 30s;
+}
+.r3 .lp-node-in {
+  animation-duration: 42s;
+  animation-direction: reverse;
+}
+.lp-node-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+.free {
+  color: var(--free);
+}
+.free .lp-node-dot,
+.lp-dot.free {
+  background: var(--free);
+  color: var(--free);
+}
+.plan {
+  color: var(--violet);
+}
+.plan .lp-node-dot,
+.lp-dot.violet,
+.lp-dot.plan {
+  background: var(--violet);
+  color: var(--violet);
+}
+.event {
+  color: var(--accent);
+}
+.event .lp-node-dot,
+.lp-dot.event {
+  background: var(--accent);
+  color: var(--accent);
+}
+.lp-dot.scene,
+.lp-dot.amber {
+  background: var(--amber);
+  color: var(--amber);
+}
+.lp-core {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: calc(var(--o) * 0.23);
+  height: calc(var(--o) * 0.23);
+  border-radius: 50%;
+  background: var(--grad);
+  box-shadow:
+    0 0 60px -4px rgba(255, 94, 135, 0.7),
+    0 0 130px -8px rgba(255, 138, 91, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: lp-pulse 4.5s ease-in-out infinite;
+}
+.lp-core::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.45), transparent 55%), #0b0a10;
+}
+.lp-core-label {
+  position: relative;
+  z-index: 1;
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--ink);
+  opacity: 0.9;
+}
+@keyframes lp-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* features */
+.lp-features {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+.lp-feat {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 20px;
+  padding: 22px;
+  text-align: left;
+}
+.lp-feat-dot {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  margin-bottom: 14px;
+  box-shadow: 0 0 12px currentColor;
+}
+.lp-feat.free .lp-feat-dot {
+  background: var(--free);
+  color: var(--free);
+}
+.lp-feat.plan .lp-feat-dot {
+  background: var(--violet);
+  color: var(--violet);
+}
+.lp-feat.event .lp-feat-dot {
+  background: var(--accent);
+  color: var(--accent);
+}
+.lp-feat h3 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.lp-feat p {
+  font-size: 13.5px;
+  color: var(--dim);
+  line-height: 1.55;
+}
+
+/* footer */
+.lp-foot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 20px calc(40px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--bd2);
+  max-width: 1000px;
+  margin: 24px auto 0;
+}
+.lp-foot-links {
+  display: flex;
+  gap: 22px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dim);
+}
+.lp-foot-links a:hover {
+  color: var(--ink);
+}
+.lp-foot .footnote {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .lp-features {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .lp-orbit {
+    --o: 290px;
+  }
+  .lp-hero {
+    padding-top: 104px;
+    gap: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-ring,
+  .lp-node-in,
+  .lp-core,
+  .lp-ping::before {
+    animation: none;
+  }
 }

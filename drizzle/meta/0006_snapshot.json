@@ -1,9 +1,90 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "80bf2e22-0f64-46b7-b4a2-dc75610281ab",
-  "prevId": "a6ebf6b8-c740-4027-bf64-551a3fd9ae4c",
+  "id": "fc0d9f14-b5f2-4592-b9e6-311e24b248dc",
+  "prevId": "67940118-f7ed-4e50-af47-b140a80f7022",
   "tables": {
+    "admin_audit_log": {
+      "name": "admin_audit_log",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "summary": {
+          "name": "summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta": {
+          "name": "meta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "audit_created": {
+          "name": "audit_created",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "audit_actor": {
+          "name": "audit_actor",
+          "columns": [
+            "actor_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "attendance": {
       "name": "attendance",
       "columns": {
@@ -72,124 +153,6 @@
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "check_ins": {
-      "name": "check_ins",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "event_id": {
-          "name": "event_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "global_awarded": {
-          "name": "global_awarded",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "org_awarded": {
-          "name": "org_awarded",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "bonus_breakdown": {
-          "name": "bonus_breakdown",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'{}'"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "check_ins_user_event": {
-          "name": "check_ins_user_event",
-          "columns": [
-            "user_id",
-            "event_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "check_ins_user_id_users_id_fk": {
-          "name": "check_ins_user_id_users_id_fk",
-          "tableFrom": "check_ins",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "check_ins_event_id_reward_events_id_fk": {
-          "name": "check_ins_event_id_reward_events_id_fk",
-          "tableFrom": "check_ins",
-          "tableTo": "reward_events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "check_ins_org_id_organizations_id_fk": {
-          "name": "check_ins_org_id_organizations_id_fk",
-          "tableFrom": "check_ins",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
           ],
           "columnsTo": [
             "id"
@@ -472,42 +435,32 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "global_reward_rules": {
-      "name": "global_reward_rules",
+    "mfa_credentials": {
+      "name": "mfa_credentials",
       "columns": {
-        "id": {
-          "name": "id",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
-        "base_points": {
-          "name": "base_points",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 100
-        },
-        "bonuses": {
-          "name": "bonuses",
+        "secret_enc": {
+          "name": "secret_enc",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "'{}'"
+          "autoincrement": false
         },
-        "active": {
-          "name": "active",
-          "type": "integer",
+        "confirmed_at": {
+          "name": "confirmed_at",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
+          "notNull": false,
+          "autoincrement": false
         },
-        "updated_at": {
-          "name": "updated_at",
+        "created_at": {
+          "name": "created_at",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -515,13 +468,27 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "mfa_credentials_user_id_users_id_fk": {
+          "name": "mfa_credentials_user_id_users_id_fk",
+          "tableFrom": "mfa_credentials",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "org_follows": {
-      "name": "org_follows",
+    "mfa_recovery_codes": {
+      "name": "mfa_recovery_codes",
       "columns": {
         "id": {
           "name": "id",
@@ -537,35 +504,34 @@
           "notNull": true,
           "autoincrement": false
         },
-        "org_id": {
-          "name": "org_id",
+        "code_hash": {
+          "name": "code_hash",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "created_at": {
-          "name": "created_at",
+        "used_at": {
+          "name": "used_at",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },
       "indexes": {
-        "org_follows_user_org": {
-          "name": "org_follows_user_org",
+        "recovery_user": {
+          "name": "recovery_user",
           "columns": [
-            "user_id",
-            "org_id"
+            "user_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
-        "org_follows_user_id_users_id_fk": {
-          "name": "org_follows_user_id_users_id_fk",
-          "tableFrom": "org_follows",
+        "mfa_recovery_codes_user_id_users_id_fk": {
+          "name": "mfa_recovery_codes_user_id_users_id_fk",
+          "tableFrom": "mfa_recovery_codes",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -573,270 +539,10 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "org_follows_org_id_organizations_id_fk": {
-          "name": "org_follows_org_id_organizations_id_fk",
-          "tableFrom": "org_follows",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "org_perks": {
-      "name": "org_perks",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "point_cost": {
-          "name": "point_cost",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "min_tier": {
-          "name": "min_tier",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "total_inventory": {
-          "name": "total_inventory",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "per_user_limit": {
-          "name": "per_user_limit",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "active": {
-          "name": "active",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
-        },
-        "valid_from": {
-          "name": "valid_from",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "valid_to": {
-          "name": "valid_to",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "org_perks_org": {
-          "name": "org_perks_org",
-          "columns": [
-            "org_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "org_perks_org_id_organizations_id_fk": {
-          "name": "org_perks_org_id_organizations_id_fk",
-          "tableFrom": "org_perks",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "org_tiers": {
-      "name": "org_tiers",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "min_points": {
-          "name": "min_points",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "sort": {
-          "name": "sort",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        }
-      },
-      "indexes": {
-        "org_tiers_org": {
-          "name": "org_tiers_org",
-          "columns": [
-            "org_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "org_tiers_org_id_organizations_id_fk": {
-          "name": "org_tiers_org_id_organizations_id_fk",
-          "tableFrom": "org_tiers",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "organizations": {
-      "name": "organizations",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "avatar": {
-          "name": "avatar",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "poisys_org_ref": {
-          "name": "poisys_org_ref",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "organizations_slug_unique": {
-          "name": "organizations_slug_unique",
-          "columns": [
-            "slug"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -915,146 +621,46 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "platform_perks": {
-      "name": "platform_perks",
+    "platform_admins": {
+      "name": "platform_admins",
       "columns": {
-        "id": {
-          "name": "id",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "point_cost": {
-          "name": "point_cost",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "fulfillment": {
-          "name": "fulfillment",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'auto-digital'"
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'first-party'"
-        },
-        "sponsor_id": {
-          "name": "sponsor_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "placement": {
-          "name": "placement",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "segment": {
-          "name": "segment",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'{}'"
-        },
-        "total_inventory": {
-          "name": "total_inventory",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "per_user_limit": {
-          "name": "per_user_limit",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "active": {
-          "name": "active",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
-        },
-        "valid_from": {
-          "name": "valid_from",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "valid_to": {
-          "name": "valid_to",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
+        "granted_at": {
+          "name": "granted_at",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
-      "indexes": {
-        "platform_perks_active": {
-          "name": "platform_perks_active",
-          "columns": [
-            "active",
-            "valid_to"
+      "indexes": {},
+      "foreignKeys": {
+        "platform_admins_user_id_users_id_fk": {
+          "name": "platform_admins_user_id_users_id_fk",
+          "tableFrom": "platform_admins",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
           ],
-          "isUnique": false
-        },
-        "platform_perks_source": {
-          "name": "platform_perks_source",
-          "columns": [
-            "source",
-            "placement"
+          "columnsTo": [
+            "id"
           ],
-          "isUnique": false
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "points_ledger": {
-      "name": "points_ledger",
+    "push_tokens": {
+      "name": "push_tokens",
       "columns": {
         "id": {
           "name": "id",
@@ -1070,43 +676,22 @@
           "notNull": true,
           "autoincrement": false
         },
-        "scope": {
-          "name": "scope",
+        "token": {
+          "name": "token",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "delta": {
-          "name": "delta",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "kind": {
-          "name": "kind",
+        "platform": {
+          "name": "platform",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "source_ref": {
-          "name": "source_ref",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
+        "updated_at": {
+          "name": "updated_at",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -1114,19 +699,25 @@
         }
       },
       "indexes": {
-        "points_ledger_user_scope": {
-          "name": "points_ledger_user_scope",
+        "push_tokens_token_unique": {
+          "name": "push_tokens_token_unique",
           "columns": [
-            "user_id",
-            "scope"
+            "token"
+          ],
+          "isUnique": true
+        },
+        "push_tokens_user": {
+          "name": "push_tokens_user",
+          "columns": [
+            "user_id"
           ],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "points_ledger_user_id_users_id_fk": {
-          "name": "points_ledger_user_id_users_id_fk",
-          "tableFrom": "points_ledger",
+        "push_tokens_user_id_users_id_fk": {
+          "name": "push_tokens_user_id_users_id_fk",
+          "tableFrom": "push_tokens",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -1197,364 +788,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "redemptions": {
-      "name": "redemptions",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "scope": {
-          "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "perk_id": {
-          "name": "perk_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "code_hash": {
-          "name": "code_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'issued'"
-        },
-        "fulfillment": {
-          "name": "fulfillment",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "issued_at": {
-          "name": "issued_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "redeemed_at": {
-          "name": "redeemed_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "redemptions_user": {
-          "name": "redemptions_user",
-          "columns": [
-            "user_id"
-          ],
-          "isUnique": false
-        },
-        "redemptions_code": {
-          "name": "redemptions_code",
-          "columns": [
-            "code_hash"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "redemptions_user_id_users_id_fk": {
-          "name": "redemptions_user_id_users_id_fk",
-          "tableFrom": "redemptions",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "reward_event_secrets": {
-      "name": "reward_event_secrets",
-      "columns": {
-        "event_id": {
-          "name": "event_id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "rotating_secret": {
-          "name": "rotating_secret",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "step_seconds": {
-          "name": "step_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 30
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "reward_event_secrets_event_id_reward_events_id_fk": {
-          "name": "reward_event_secrets_event_id_reward_events_id_fk",
-          "tableFrom": "reward_event_secrets",
-          "tableTo": "reward_events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "reward_events": {
-      "name": "reward_events",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "venue_area": {
-          "name": "venue_area",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "starts_at": {
-          "name": "starts_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "ends_at": {
-          "name": "ends_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "checkin_opens_at": {
-          "name": "checkin_opens_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "checkin_closes_at": {
-          "name": "checkin_closes_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "org_base_points": {
-          "name": "org_base_points",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "org_bonuses": {
-          "name": "org_bonuses",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'{}'"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'published'"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "reward_events_org_start": {
-          "name": "reward_events_org_start",
-          "columns": [
-            "org_id",
-            "starts_at"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "reward_events_org_id_organizations_id_fk": {
-          "name": "reward_events_org_id_organizations_id_fk",
-          "tableFrom": "reward_events",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "reward_rsvps": {
-      "name": "reward_rsvps",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "event_id": {
-          "name": "event_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "reward_rsvps_user_event": {
-          "name": "reward_rsvps_user_event",
-          "columns": [
-            "user_id",
-            "event_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "reward_rsvps_user_id_users_id_fk": {
-          "name": "reward_rsvps_user_id_users_id_fk",
-          "tableFrom": "reward_rsvps",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "reward_rsvps_event_id_reward_events_id_fk": {
-          "name": "reward_rsvps_event_id_reward_events_id_fk",
-          "tableFrom": "reward_rsvps",
-          "tableTo": "reward_events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "users": {
       "name": "users",
       "columns": {
@@ -1570,6 +803,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "display_name": {
@@ -1624,13 +864,6 @@
           "autoincrement": false,
           "default": false
         },
-        "platform_role": {
-          "name": "platform_role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "text",
@@ -1644,6 +877,13 @@
           "name": "users_handle_unique",
           "columns": [
             "handle"
+          ],
+          "isUnique": true
+        },
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "columns": [
+            "email"
           ],
           "isUnique": true
         },

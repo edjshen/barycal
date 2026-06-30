@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.barycal.app"],
+        "components": [
+          { "/": "/e/*", "comment": "event pages" },
+          { "/": "/u/*", "comment": "profile pages" },
+          { "/": "/rooms/*", "comment": "room join + enter links" }
+        ]
+      }
+    ]
+  }
+}
