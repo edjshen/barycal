@@ -12,6 +12,7 @@ import { getMfaCredential, consumeRecoveryCode } from '../db/mfa-queries';
 import { decryptSecret } from '../auth/crypto';
 import { verifyTotp, verifyRecoveryCode } from '../auth/mfa';
 import { nextAalAfterPassword } from '../auth/superadmin';
+import { safeNext } from '../url';
 
 function toHandle(s: string) {
   return String(s || '')
@@ -73,7 +74,10 @@ export async function login(_prev: AuthState, form: FormData): Promise<AuthState
   const mfa = await getMfaCredential(u.id);
   s.aal = nextAalAfterPassword(!!mfa?.confirmedAt);
   await s.save();
-  redirect(s.aal === 'aal1' ? '/login/mfa' : '/discover');
+  // MFA gate wins first: an aal1 (step-up-required) session must clear TOTP before
+  // we honor any return URL. Otherwise return to the validated `next` (e.g. a
+  // private event link that sent them to log in), falling back to the app home.
+  redirect(s.aal === 'aal1' ? '/login/mfa' : (safeNext(form.get('next')) ?? '/discover'));
 }
 
 export async function register(_prev: AuthState, form: FormData): Promise<AuthState> {
@@ -112,7 +116,9 @@ export async function register(_prev: AuthState, form: FormData): Promise<AuthSt
   s.handle = handle;
   s.aal = 'aal2';
   await s.save();
-  redirect('/discover');
+  // Same as login: honor a validated return URL so a new signup that started
+  // from a shared event/profile link lands back there to RSVP or follow.
+  redirect(safeNext(form.get('next')) ?? '/discover');
 }
 
 export async function logout() {

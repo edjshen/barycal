@@ -179,6 +179,25 @@ export const mfaRecoveryCodes = sqliteTable(
   (t) => ({ byUser: index('recovery_user').on(t.userId) })
 );
 
+// Device push-notification tokens (one row per device install), populated by the
+// native iOS/Android shell via POST /api/push/register; web visitors never write
+// here. `token` is the FCM registration token (globally unique per install), so
+// it's the conflict target — a token that moves to a newly signed-in user
+// updates in place rather than duplicating.
+export const pushTokens = sqliteTable(
+  'push_tokens',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id),
+    token: text('token').notNull().unique(),
+    platform: text('platform', { enum: ['ios', 'android', 'web'] }).notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (t) => ({ byUser: index('push_tokens_user').on(t.userId) })
+);
+
 export type User = typeof users.$inferSelect;
 export type Connection = typeof connections.$inferSelect;
 export type Placement = typeof placements.$inferSelect;
@@ -189,3 +208,4 @@ export type PlatformAdmin = typeof platformAdmins.$inferSelect;
 export type AdminAuditRow = typeof adminAuditLog.$inferSelect;
 export type MfaCredential = typeof mfaCredentials.$inferSelect;
 export type MfaRecoveryCode = typeof mfaRecoveryCodes.$inferSelect;
+export type PushToken = typeof pushTokens.$inferSelect;
