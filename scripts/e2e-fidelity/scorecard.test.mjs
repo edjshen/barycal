@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isSoft, scanSoftTests } from './scorecard.mjs';
+import { isSoft, scanSoftTests, computeStatic } from './scorecard.mjs';
+import os from 'node:os';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Mirrors the real barycal soft pattern (e2e/12-rsvp.spec.ts, e2e/01-landing-auth.spec.ts)
 const SOFT_SWALLOW = `
@@ -38,4 +41,16 @@ test('scanSoftTests returns titles of soft tests only', () => {
   const src = SOFT_SWALLOW + '\n' + GOOD;
   const titles = scanSoftTests(src);
   assert.deepEqual(titles, ['rsvp toggles']);
+});
+
+test('computeStatic counts soft and total tests across a dir', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'e2efid-'));
+  fs.writeFileSync(
+    path.join(dir, 'a.spec.ts'),
+    `test('soft', async ({ page }) => { expect(page.url()).toContain('localhost'); });
+     test('good', async ({ page }) => { await expect(page.locator('h1')).toBeVisible(); });`
+  );
+  const r = computeStatic(dir);
+  assert.equal(r.tests_total, 2);
+  assert.equal(r.soft_tests, 1);
 });
