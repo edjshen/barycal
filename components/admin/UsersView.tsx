@@ -1,7 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { adminToggleGhost, adminForceResetPassword, adminDeleteUser } from '@/lib/actions/superadmin';
+import {
+  adminToggleGhost,
+  adminForceResetPassword,
+  adminDeleteUser,
+} from '@/lib/actions/superadmin';
 
 type Row = {
   id: string;
