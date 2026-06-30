@@ -3,8 +3,6 @@ import path from 'node:path';
 
 const WEB_FIRST =
   /\.(toBeVisible|toBeHidden|toHaveText|toContainText|toHaveValue|toHaveCount|toBeChecked|toHaveAttribute|toHaveURL|toBeEnabled|toBeDisabled)\b/;
-const URL_ONLY = /expect\([^)]*(page\.url\(\)|\.url\b)[^)]*\)\.(toContain|toMatch|toBe)\b/;
-const BODY_ONLY = /expect\([^)]*body[^)]*\)\.(toBeTruthy|toBeDefined)\b|\.length[^)]*\)\.(toBeGreaterThan|toBe)\b/i;
 const SWALLOW = /\.catch\(\s*\(\)\s*=>\s*(false|null|undefined)\s*\)/;
 const COND_SKIP = /else\s*\{\s*(console\.(log|warn)|return\b)/;
 const WAIT_STATE = /waitForTimeout\(/;
@@ -26,8 +24,6 @@ export function isSoft(body) {
   if (COND_SKIP.test(body)) return true; // rule 4: conditional-skip with no assertion
   if (!/expect\(/.test(body)) return true; // rule 6: no assertions at all
   if (!WEB_FIRST.test(body)) return true; // rules 1,2: only url/body-length style (no web-first outcome)
-  if (URL_ONLY.test(body) && !WEB_FIRST.test(body)) return true;
-  if (BODY_ONLY.test(body) && !WEB_FIRST.test(body)) return true;
   // rule 5: waitForTimeout gating state with no web-first assertion AFTER it
   if (WAIT_STATE.test(body)) {
     const after = body.split('waitForTimeout').slice(1).join('waitForTimeout');
