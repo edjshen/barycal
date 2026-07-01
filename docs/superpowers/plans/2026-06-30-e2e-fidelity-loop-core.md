@@ -561,10 +561,12 @@ const approve = safety && others >= 2;
 return { approve, safety_pass: safety, others_passing: others, verdicts: clean };
 ```
 
-- [ ] **Step 2: Verify it parses (syntax check)**
+- [ ] **Step 2: Verify it parses (async-context syntax check)**
 
-Run: `node --check scripts/e2e-fidelity/moe-panel.workflow.js`
-Expected: no output, exit 0 (valid JS).
+Workflow scripts run inside an async wrapper, so top-level `await`/`return` are valid there but make a bare `node --check` fail with "Illegal return statement." Validate by parsing it as an async function instead:
+
+Run: `node -e "const s=require('fs').readFileSync('scripts/e2e-fidelity/moe-panel.workflow.js','utf8').replace(/export const meta/,'const meta'); new (Object.getPrototypeOf(async function(){}).constructor)('args','parallel','agent','pipeline','log','phase','workflow','budget', s); console.log('PARSE_OK')"`
+Expected: prints `PARSE_OK`.
 
 - [ ] **Step 3: Commit**
 
