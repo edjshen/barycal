@@ -57,7 +57,15 @@ export function readFlowsTotal(contractPath) {
   return m ? Number(m[1]) : null;
 }
 
-export function buildScorecard({ repo, testDir, contractPath, commit, timestamp, prev, dynamic = {} }) {
+export function buildScorecard({
+  repo,
+  testDir,
+  contractPath,
+  commit,
+  timestamp,
+  prev,
+  dynamic = {},
+}) {
   const stat = computeStatic(testDir);
   const metrics = {
     soft_tests: stat.soft_tests,
@@ -97,7 +105,9 @@ export function appendScorecard(jsonPath, card) {
 // CLI: node scripts/e2e-fidelity/scorecard.mjs --repo barycal --test-dir e2e --commit <sha> --timestamp <iso>
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = Object.fromEntries(
-    process.argv.slice(2).reduce((a, x, i, arr) => (x.startsWith('--') ? [...a, [x.slice(2), arr[i + 1]]] : a), [])
+    process.argv
+      .slice(2)
+      .reduce((a, x, i, arr) => (x.startsWith('--') ? [...a, [x.slice(2), arr[i + 1]]] : a), [])
   );
   const root = process.cwd();
   const jsonPath = path.join(root, '.learned-experience/e2e-scorecard.json');

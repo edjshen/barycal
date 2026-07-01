@@ -40,6 +40,7 @@ scripts/e2e-fidelity/
 ## Task 1: Soft-test scanner (TDD)
 
 **Files:**
+
 - Create: `scripts/e2e-fidelity/scorecard.mjs`
 - Test: `scripts/e2e-fidelity/scorecard.test.mjs`
 
@@ -105,7 +106,8 @@ import path from 'node:path';
 const WEB_FIRST =
   /\.(toBeVisible|toBeHidden|toHaveText|toContainText|toHaveValue|toHaveCount|toBeChecked|toHaveAttribute|toHaveURL|toBeEnabled|toBeDisabled)\b/;
 const URL_ONLY = /expect\([^)]*(page\.url\(\)|\.url\b)[^)]*\)\.(toContain|toMatch|toBe)\b/;
-const BODY_ONLY = /expect\([^)]*body[^)]*\)\.(toBeTruthy|toBeDefined)\b|\.length[^)]*\)\.(toBeGreaterThan|toBe)\b/i;
+const BODY_ONLY =
+  /expect\([^)]*body[^)]*\)\.(toBeTruthy|toBeDefined)\b|\.length[^)]*\)\.(toBeGreaterThan|toBe)\b/i;
 const SWALLOW = /\.catch\(\s*\(\)\s*=>\s*(false|null|undefined)\s*\)/;
 const COND_SKIP = /else\s*\{\s*(console\.(log|warn)|return\b)/;
 const WAIT_STATE = /waitForTimeout\(/;
@@ -161,6 +163,7 @@ git commit -m "feat(e2e-fidelity): soft-test scanner (6 heuristic rules)"
 ## Task 2: Static aggregation + scorecard JSON emit
 
 **Files:**
+
 - Modify: `scripts/e2e-fidelity/scorecard.mjs` (append `computeStatic`, `buildScorecard`, CLI)
 - Modify: `scripts/e2e-fidelity/scorecard.test.mjs` (add `computeStatic` test)
 
@@ -216,7 +219,15 @@ export function readFlowsTotal(contractPath) {
   return m ? Number(m[1]) : null;
 }
 
-export function buildScorecard({ repo, testDir, contractPath, commit, timestamp, prev, dynamic = {} }) {
+export function buildScorecard({
+  repo,
+  testDir,
+  contractPath,
+  commit,
+  timestamp,
+  prev,
+  dynamic = {},
+}) {
   const stat = computeStatic(testDir);
   const metrics = {
     soft_tests: stat.soft_tests,
@@ -256,7 +267,9 @@ export function appendScorecard(jsonPath, card) {
 // CLI: node scripts/e2e-fidelity/scorecard.mjs --repo barycal --test-dir e2e --commit <sha> --timestamp <iso>
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = Object.fromEntries(
-    process.argv.slice(2).reduce((a, x, i, arr) => (x.startsWith('--') ? [...a, [x.slice(2), arr[i + 1]]] : a), [])
+    process.argv
+      .slice(2)
+      .reduce((a, x, i, arr) => (x.startsWith('--') ? [...a, [x.slice(2), arr[i + 1]]] : a), [])
   );
   const root = process.cwd();
   const jsonPath = path.join(root, '.learned-experience/e2e-scorecard.json');
@@ -293,6 +306,7 @@ git commit -m "feat(e2e-fidelity): static aggregation + scorecard JSON emit + CL
 This is the safety-critical guard: the loop aborts the PR if its diff touches anything outside the allowlist (spec §1 constraints).
 
 **Files:**
+
 - Create: `scripts/e2e-fidelity/diff-gate.mjs`
 - Test: `scripts/e2e-fidelity/diff-gate.test.mjs`
 
@@ -381,7 +395,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   let buf = '';
   process.stdin.on('data', (d) => (buf += d));
   process.stdin.on('end', () => {
-    const paths = buf.split('\n').map((s) => s.trim()).filter(Boolean);
+    const paths = buf
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
     const r = checkDiff(paths);
     if (!r.ok) {
       console.error('DIFF-GATE VIOLATION — out-of-scope files:\n' + r.violations.join('\n'));
@@ -411,6 +428,7 @@ git commit -m "feat(e2e-fidelity): diff-scope safety gate (allowlist + app-root 
 Mutation-prove without touching app code: copy a spec to a temp file, inject a route-abort that breaks its flow's API, run it, and assert it goes RED. A spec that still passes is soft.
 
 **Files:**
+
 - Create: `scripts/e2e-fidelity/mutate.mjs`
 - Test: `scripts/e2e-fidelity/mutate.test.mjs`
 
@@ -500,6 +518,7 @@ git commit -m "feat(e2e-fidelity): mutation prover (route-abort source-transform
 A `Workflow` script the loop runs via the Workflow tool to adversarially review its own diff. Four lenses; safety is a hard gate; ≥2 of the other three must pass (mirrors CLAUDE.md gate-(b)).
 
 **Files:**
+
 - Create: `scripts/e2e-fidelity/moe-panel.workflow.js`
 
 - [ ] **Step 1: Write the workflow script**
@@ -545,18 +564,26 @@ const LENSES = [
 ];
 
 const verdicts = await parallel(
-  LENSES.map(([lens, prompt]) => () =>
-    agent(`${prompt}\n\nDIFF:\n${diff}`, { label: lens, phase: 'Review', schema: VERDICT }).then((v) => ({
-      lens,
-      ...v,
-    }))
+  LENSES.map(
+    ([lens, prompt]) =>
+      () =>
+        agent(`${prompt}\n\nDIFF:\n${diff}`, {
+          label: lens,
+          phase: 'Review',
+          schema: VERDICT,
+        }).then((v) => ({
+          lens,
+          ...v,
+        }))
   )
 );
 
 const clean = verdicts.filter(Boolean);
 const by = Object.fromEntries(clean.map((v) => [v.lens, v]));
 const safety = by['safety-scope']?.pass === true;
-const others = ['assertion-skeptic', 'realism-ux', 'determinism-flake'].filter((l) => by[l]?.pass).length;
+const others = ['assertion-skeptic', 'realism-ux', 'determinism-flake'].filter(
+  (l) => by[l]?.pass
+).length;
 const approve = safety && others >= 2;
 return { approve, safety_pass: safety, others_passing: others, verdicts: clean };
 ```
@@ -582,6 +609,7 @@ git commit -m "feat(e2e-fidelity): mixture-of-experts review panel workflow"
 ## Task 6: barycal contract + ledger seed + baseline scorecard
 
 **Files:**
+
 - Create: `.learned-experience/e2e-contract.md`
 - Create: `.learned-experience/e2e-fidelity.md`
 - Create (via engine): `.learned-experience/e2e-scorecard.json`
@@ -590,33 +618,38 @@ git commit -m "feat(e2e-fidelity): mixture-of-experts review panel workflow"
 
 Create `.learned-experience/e2e-contract.md` with exactly this content:
 
-````markdown
+```markdown
 # barycal — E2E Fidelity Contract
 
 flows_total: 14
 
 ## Run
+
 - Command: `npx playwright test` (config `playwright.config.ts`, baseURL `http://localhost:3000`, projects `chromium` + `mobile`, browser `/opt/pw-browsers/chromium`).
 - The loop should add a `test:e2e` npm script (scripts block only) as an early trust fix.
 
 ## Dev-server + DB safety (MANDATORY)
+
 - `npm run db:migrate:local && npm run db:seed:local` (wrangler D1 **--local**, miniflare SQLite; `scripts/gen-seed.ts` → `drizzle/seed.sql`), then `npm run dev`.
 - **NEVER** `db:migrate:remote` / `db:seed:remote`. The loop must only ever target `--local`.
 - Real login: username `ed`, password `barycal`, against the **seeded local DB only**.
 
 ## Mutation lever
+
 - Break the flow's API by route-aborting it on a throwaway copy of the spec (see `scripts/e2e-fidelity/mutate.mjs`). Default glob `**/api/**`; narrow per flow where known (e.g. RSVP → the RSVP mutation endpoint). No app-code edits.
 
 ## Personas
+
 - `ed` — the single owner-user (barycal is single-user).
 
 ## Canonical flow inventory (14)
-1. landing-auth  2. navigation  3. discover  4. calendar  5. create-event
-6. circles  7. regulars  8. profile  9. plans  10. public-pages
-11. rsvp  12. event-detail  13. mobile-ux  14. error-states
+
+1. landing-auth 2. navigation 3. discover 4. calendar 5. create-event
+2. circles 7. regulars 8. profile 9. plans 10. public-pages
+3. rsvp 12. event-detail 13. mobile-ux 14. error-states
 
 (Most of the existing `e2e/0x–15` specs are currently SOFT — trust fixes come before realism.)
-````
+```
 
 - [ ] **Step 2: Write the ledger seed**
 
@@ -628,9 +661,10 @@ Create `.learned-experience/e2e-fidelity.md` with exactly this content:
 Maintained by the `e2e-fidelity-loop` skill. Each cycle appends a dated block:
 findings (prioritized: soft tests → coverage gaps → realism), root cause,
 "how a real user differs," what was fixed, what remains. Scorecard numbers live
-in `e2e-scorecard.json`; this file holds the *why*.
+in `e2e-scorecard.json`; this file holds the _why_.
 
 ## Cycle 0 — baseline (seed)
+
 - Baseline scorecard captured. Known disease: most `e2e/*.spec.ts` are soft —
   e.g. `12-rsvp.spec.ts` and `01-landing-auth.spec.ts` assert only `page.url()`
   / body length and swallow checks with `.catch(() => false)`, so they pass even
@@ -640,9 +674,11 @@ in `e2e-scorecard.json`; this file holds the *why*.
 - [ ] **Step 3: Emit the baseline scorecard**
 
 Run:
+
 ```bash
 node scripts/e2e-fidelity/scorecard.mjs --repo barycal --test-dir e2e --commit "$(git rev-parse --short HEAD)" --timestamp "2026-06-30T00:00:00Z"
 ```
+
 Expected: prints a metrics JSON with `"soft_tests"` ≥ 8 and `"flows_total": 14`, and creates `.learned-experience/e2e-scorecard.json` as a 1-element array.
 
 - [ ] **Step 4: Sanity-check the emitted file**
@@ -662,13 +698,14 @@ git commit -m "feat(e2e-fidelity): barycal contract + ledger seed + baseline sco
 ## Task 7: The `e2e-fidelity-loop` skill
 
 **Files:**
+
 - Create: `.claude/skills/e2e-fidelity-loop/SKILL.md`
 
 - [ ] **Step 1: Write the skill**
 
 Create `.claude/skills/e2e-fidelity-loop/SKILL.md` with exactly this content:
 
-````markdown
+```markdown
 ---
 name: e2e-fidelity-loop
 description: Run ONE bounded increment of the self-learning E2E fidelity loop for the current repo (measure → learn → fix top 3–5 trust-then-realism gaps → mutation-prove → MoE-review → open a PR). Invoked by the repo's twice-weekly cron routine or manually. Never merges or deploys.
@@ -681,6 +718,7 @@ first — it defines the run command, DB-safety rule, mutation lever, personas, 
 inventory for THIS repo. Obey the spec at `docs/superpowers/specs/2026-06-30-e2e-fidelity-loop-design.md`.
 
 ## Hard rules (never violate)
+
 - Diff surface = test files + `.learned-experience/**` + `playwright.config.*` + the
   `package.json` scripts block ONLY. Before opening the PR, run the diff gate; if it fails, drop the
   offending changes.
@@ -693,6 +731,7 @@ inventory for THIS repo. Obey the spec at `docs/superpowers/specs/2026-06-30-e2e
 ## Procedure
 
 ### Stage 1 — Measure
+
 1. Bring up the harness per the contract (migrate+seed local DB, start dev server).
 2. Run the suite. Repeat 3× to estimate `flake_rate` (failures ÷ (specs × 3)).
 3. Emit the scorecard:
@@ -700,11 +739,13 @@ inventory for THIS repo. Obey the spec at `docs/superpowers/specs/2026-06-30-e2e
    Then hand-fill `flake_rate` (and later `mutation_kill_rate`) into the new entry.
 
 ### Stage 2 — Learn
+
 4. Compare the new metrics to the previous scorecard entry. Append a dated block to
    `.learned-experience/e2e-fidelity.md`: prioritized findings (trust-first: soft tests &
    mutation survivors → coverage gaps → realism), each with root cause and "how a real user differs."
 
 ### Stage 3 — Improve (bounded, top 3–5)
+
 5. Pick the top 3–5 gaps in priority order. **Trust before realism:**
    - Replace swallow-and-log / url-only / body-length assertions with web-first assertions on the
      actual user-visible outcome (`expect(locator).toBeVisible/toHaveText/...`).
@@ -714,6 +755,7 @@ inventory for THIS repo. Obey the spec at `docs/superpowers/specs/2026-06-30-e2e
 6. Re-run each changed spec; it must be GREEN against the real (seeded) app.
 
 ### Stage 4 — Mutation-prove
+
 7. For each improved happy-path spec, run the mutation prover with the flow's API glob:
    `node -e "import('./scripts/e2e-fidelity/mutate.mjs').then(m=>m.runMutated('<spec>', '<glob>').then(r=>console.log(r.killed)))"`
    Require `killed === true` (the spec goes RED when the feature breaks). If `killed === false`, the
@@ -721,11 +763,13 @@ inventory for THIS repo. Obey the spec at `docs/superpowers/specs/2026-06-30-e2e
    killed ÷ improved-happy-path-specs into the scorecard entry.
 
 ### Stage 5 — Re-measure & gate
+
 8. Re-emit the scorecard. Require monotonic improvement: no metric regresses and at least one trust
    metric (`soft_tests` ↓ or `mutation_kill_rate` ↑) improves. Revert any change that didn't move a
    metric or introduced flake.
 
 ### Stage 6 — Panel + PR
+
 9. Stage the diff and run the safety gate:
    `git add -A && git diff --cached --name-only | node scripts/e2e-fidelity/diff-gate.mjs`
    It must print "diff-gate OK". If it errors, unstage the offending files and fix.
@@ -736,10 +780,10 @@ inventory for THIS repo. Obey the spec at `docs/superpowers/specs/2026-06-30-e2e
 11. Open the PR on branch `e2e-fidelity/<repo>-<YYYY-MM-DD>` (base = repo default branch) with
     `gh pr create`. Body must include: the scorecard delta table, the ledger excerpt, the mutation
     evidence, the panel verdicts, and the line:
-    *"Auto-generated by e2e-fidelity-loop. Not authorized to merge or deploy — human review +
-    standard deploy gate required."*
+    _"Auto-generated by e2e-fidelity-loop. Not authorized to merge or deploy — human review +
+    standard deploy gate required."_
 12. Stop. Do not merge, deploy, or start another increment.
-````
+```
 
 - [ ] **Step 2: Verify the skill is well-formed**
 
@@ -770,9 +814,11 @@ flow first: **rsvp** (`e2e/12-rsvp.spec.ts`).
 - [ ] **Step 2: Confirm the trust fix is real (mutation kill)**
 
 Run:
+
 ```bash
 node -e "import('./scripts/e2e-fidelity/mutate.mjs').then(m=>m.runMutated('e2e/12-rsvp.spec.ts','**/api/**').then(r=>{console.log('killed:',r.killed);process.exit(r.killed?0:1)}))"
 ```
+
 Expected: `killed: true` (after the fix, the RSVP spec FAILS when its API is aborted). Before the
 fix the same command prints `killed: false` — capture both in the ledger as the trust-delta evidence.
 
@@ -809,10 +855,10 @@ creating + enabling it:
 
 - Tool: `create_trigger`
 - `name`: `e2e-fidelity-loop — barycal`
-- `cron_expression`: `0 7 * * 3,0`  (Wed + Sun, 07:00 UTC ≈ 03:00 ET)
+- `cron_expression`: `0 7 * * 3,0` (Wed + Sun, 07:00 UTC ≈ 03:00 ET)
 - `create_new_session_on_fire`: `true`
 - `environment_id`: resolve via `list_environments` (barycal's env)
-- `prompt`: *"Run the e2e-fidelity-loop skill for barycal per `.learned-experience/e2e-contract.md`. One bounded increment. Use the LOCAL seeded D1 only (never --remote). Open one MoE-reviewed PR on an `e2e-fidelity/barycal-<date>` branch. Never merge or deploy."*
+- `prompt`: _"Run the e2e-fidelity-loop skill for barycal per `.learned-experience/e2e-contract.md`. One bounded increment. Use the LOCAL seeded D1 only (never --remote). Open one MoE-reviewed PR on an `e2e-fidelity/barycal-<date>` branch. Never merge or deploy."_
 
 ---
 

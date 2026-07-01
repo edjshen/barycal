@@ -41,17 +41,25 @@ const LENSES = [
 ];
 
 const verdicts = await parallel(
-  LENSES.map(([lens, prompt]) => () =>
-    agent(`${prompt}\n\nDIFF:\n${diff}`, { label: lens, phase: 'Review', schema: VERDICT }).then((v) => ({
-      lens,
-      ...v,
-    }))
+  LENSES.map(
+    ([lens, prompt]) =>
+      () =>
+        agent(`${prompt}\n\nDIFF:\n${diff}`, {
+          label: lens,
+          phase: 'Review',
+          schema: VERDICT,
+        }).then((v) => ({
+          lens,
+          ...v,
+        }))
   )
 );
 
 const clean = verdicts.filter(Boolean);
 const by = Object.fromEntries(clean.map((v) => [v.lens, v]));
 const safety = by['safety-scope']?.pass === true;
-const others = ['assertion-skeptic', 'realism-ux', 'determinism-flake'].filter((l) => by[l]?.pass).length;
+const others = ['assertion-skeptic', 'realism-ux', 'determinism-flake'].filter(
+  (l) => by[l]?.pass
+).length;
 const approve = safety && others >= 2;
 return { approve, safety_pass: safety, others_passing: others, verdicts: clean };
