@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e6713393-5df6-490b-a8e7-0da47c9d2a3d",
-  "prevId": "fc0d9f14-b5f2-4592-b9e6-311e24b248dc",
+  "id": "a5a16fdb-0dea-40c3-99b5-d1012e846b92",
+  "prevId": "e6713393-5df6-490b-a8e7-0da47c9d2a3d",
   "tables": {
     "admin_audit_log": {
       "name": "admin_audit_log",
@@ -384,6 +384,87 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "event_orbits": {
+      "name": "event_orbits",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "event_id": {
+          "name": "event_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "orbit_id": {
+          "name": "orbit_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "event_orbits_orbit": {
+          "name": "event_orbits_orbit",
+          "columns": [
+            "orbit_id"
+          ],
+          "isUnique": false
+        },
+        "event_orbits_event": {
+          "name": "event_orbits_event",
+          "columns": [
+            "event_id"
+          ],
+          "isUnique": false
+        },
+        "event_orbit_uniq": {
+          "name": "event_orbit_uniq",
+          "columns": [
+            "event_id",
+            "orbit_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "event_orbits_event_id_events_id_fk": {
+          "name": "event_orbits_event_id_events_id_fk",
+          "tableFrom": "event_orbits",
+          "tableTo": "events",
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "event_orbits_orbit_id_orbits_id_fk": {
+          "name": "event_orbits_orbit_id_orbits_id_fk",
+          "tableFrom": "event_orbits",
+          "tableTo": "orbits",
+          "columnsFrom": [
+            "orbit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "events": {
       "name": "events",
       "columns": {
@@ -706,6 +787,162 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "orbit_members": {
+      "name": "orbit_members",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "orbit_id": {
+          "name": "orbit_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'member'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "orbit_members_user": {
+          "name": "orbit_members_user",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "orbit_member_uniq": {
+          "name": "orbit_member_uniq",
+          "columns": [
+            "orbit_id",
+            "user_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "orbit_members_orbit_id_orbits_id_fk": {
+          "name": "orbit_members_orbit_id_orbits_id_fk",
+          "tableFrom": "orbit_members",
+          "tableTo": "orbits",
+          "columnsFrom": [
+            "orbit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "orbit_members_user_id_users_id_fk": {
+          "name": "orbit_members_user_id_users_id_fk",
+          "tableFrom": "orbit_members",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "orbits": {
+      "name": "orbits",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "orbits_owner": {
+          "name": "orbits_owner",
+          "columns": [
+            "owner_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "orbits_owner_id_users_id_fk": {
+          "name": "orbits_owner_id_users_id_fk",
+          "tableFrom": "orbits",
+          "tableTo": "users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
