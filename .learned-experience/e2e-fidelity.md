@@ -3,9 +3,10 @@
 Maintained by the `e2e-fidelity-loop` skill. Each cycle appends a dated block:
 findings (prioritized: soft tests → coverage gaps → realism), root cause,
 "how a real user differs," what was fixed, what remains. Scorecard numbers live
-in `e2e-scorecard.json`; this file holds the *why*.
+in `e2e-scorecard.json`; this file holds the _why_.
 
 ## Cycle 0 — baseline (2026-06-30)
+
 - **soft_tests: 90 / 93 tests soft** across the 15-file suite (`e2e/01-landing-auth`
   … `e2e/15-error-states`). Scanned from the current barycal suite; the loop's own
   worktree branch predates `e2e/`, so the baseline was measured against the live
@@ -19,4 +20,4 @@ in `e2e-scorecard.json`; this file holds the *why*.
   specs never assert.
 - **Plan:** trust fixes (web-first outcome assertions + mutation-proof) precede any
   realism work. Note: the soft-test heuristic is intentionally aggressive; the
-  meaningful signal is the *downward trend* across cycles, not the absolute count.
+  meaningful signal is the _downward trend_ across cycles, not the absolute count.

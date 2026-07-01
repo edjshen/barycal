@@ -35,7 +35,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   let buf = '';
   process.stdin.on('data', (d) => (buf += d));
   process.stdin.on('end', () => {
-    const paths = buf.split('\n').map((s) => s.trim()).filter(Boolean);
+    const paths = buf
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
     const r = checkDiff(paths);
     if (!r.ok) {
       console.error('DIFF-GATE VIOLATION — out-of-scope files:\n' + r.violations.join('\n'));

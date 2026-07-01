@@ -27,7 +27,10 @@ export function injectAbort(specSrc, glob) {
 // original keeps testDir membership + relative import resolution intact.
 export function runMutated(specPath, glob, { configArg = '', timeout = 120_000 } = {}) {
   const src = fs.readFileSync(specPath, 'utf8');
-  const tmp = path.join(path.dirname(specPath), `__mutated__${Date.now()}-${path.basename(specPath)}`);
+  const tmp = path.join(
+    path.dirname(specPath),
+    `__mutated__${Date.now()}-${path.basename(specPath)}`
+  );
   try {
     fs.writeFileSync(tmp, injectAbort(src, glob));
     const res = spawnSync(
