@@ -2,6 +2,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CalEvent, fmtHour, fmtTime, isToday, startOfDay, sameDay, eventColorHex } from './util';
 import { layoutDay } from './recur';
+import { rectAnchor, type Anchor } from '../primitives/AnchoredSheet';
 
 export const HOUR_PX = 52;
 const SNAP_MIN = 15;
@@ -17,6 +18,9 @@ type Drag =
       curStartMin: number;
       durMin: number;
       moved: boolean;
+      // the tapped event's DOM node, so a tap (no drag) can anchor its detail
+      // popover right where the event sits.
+      el: HTMLElement;
     }
   | {
       mode: 'resize';
@@ -47,8 +51,8 @@ export default function TimeGrid({
   days: Date[];
   events: CalEvent[];
   meId: string;
-  onCreate: (d: Draft) => void;
-  onOpenEvent: (ev: CalEvent) => void;
+  onCreate: (d: Draft, anchor?: Anchor) => void;
+  onOpenEvent: (ev: CalEvent, anchor?: Anchor) => void;
   onMove: (ev: CalEvent, startISO: string, endISO: string) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -109,6 +113,18 @@ export default function TimeGrid({
     const w = rect.width / n;
     return Math.max(0, Math.min(n - 1, Math.floor(x / w)));
   }
+  // Viewport rect of a time block, so the create popover can anchor beside the
+  // slot the user just dragged out (like Google Calendar's create bubble).
+  function slotAnchor(dayIndex: number, startMin: number, endMin: number): Anchor | undefined {
+    const cols = colsRef.current;
+    if (!cols) return undefined;
+    const r = cols.getBoundingClientRect();
+    const n = Math.max(1, latest.current.days.length);
+    const colW = r.width / n;
+    const top = r.top + (startMin / 60) * HOUR_PX;
+    const height = Math.max(12, ((endMin - startMin) / 60) * HOUR_PX);
+    return rectAnchor(r.left + dayIndex * colW, top, colW, height);
+  }
 
   // ---- global pointer handlers. Attached once on mount (not gated on `drag`)
   // so a fast tap's pointerup is never missed to a listener-attach race. ----
@@ -144,10 +160,13 @@ export default function TimeGrid({
         const b = Math.max(d.anchorMin, d.curMin);
         const start = snap(a);
         const end = Math.max(start + SNAP_MIN, snap(b));
-        L.onCreate({ startISO: isoForDayMin(day, start), endISO: isoForDayMin(day, end) });
+        L.onCreate(
+          { startISO: isoForDayMin(day, start), endISO: isoForDayMin(day, end) },
+          slotAnchor(d.dayIndex, start, end)
+        );
       } else if (d.mode === 'move') {
         if (!d.moved) {
-          L.onOpenEvent(d.ev);
+          L.onOpenEvent(d.ev, d.el);
         } else {
           const start = d.curStartMin;
           L.onMove(d.ev, isoForDayMin(day, start), isoForDayMin(day, start + d.durMin));
@@ -181,7 +200,7 @@ export default function TimeGrid({
                     key={ev.id}
                     className="tg-allday-ev"
                     style={{ background: eventColorHex(ev) }}
-                    onClick={() => onOpenEvent(ev)}
+                    onClick={(e) => onOpenEvent(ev, e.currentTarget)}
                   >
                     {ev.busy ? 'Busy' : ev.title || '(no title)'}
                   </button>
@@ -270,12 +289,13 @@ export default function TimeGrid({
                             curStartMin: startMin,
                             durMin: endMin - startMin,
                             moved: false,
+                            el: e.currentTarget,
                           });
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
                           // if it wasn't a drag (non-editable events), open here
-                          if (!mine || ev.busy) onOpenEvent(ev);
+                          if (!mine || ev.busy) onOpenEvent(ev, e.currentTarget);
                         }}
                       >
                         <div className="tg-ev-t">{ev.busy ? 'Busy' : ev.title || '(no title)'}</div>

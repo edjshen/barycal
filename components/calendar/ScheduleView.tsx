@@ -8,6 +8,7 @@ import {
   startOfDay,
   WEEKDAYS,
 } from './util';
+import { type Anchor } from '../primitives/AnchoredSheet';
 
 // Agenda / "Schedule" list, grouped by day, like Google Calendar's Schedule view.
 export default function ScheduleView({
@@ -17,7 +18,7 @@ export default function ScheduleView({
 }: {
   anchor: Date;
   events: CalEvent[];
-  onOpenEvent: (ev: CalEvent) => void;
+  onOpenEvent: (ev: CalEvent, anchor?: Anchor) => void;
 }) {
   const start = startOfDay(anchor);
   const sorted = [...events].sort(
@@ -61,7 +62,11 @@ export default function ScheduleView({
             </div>
             <div className="sv-evs">
               {evs.map((ev) => (
-                <button key={ev.id} className="sv-ev" onClick={() => onOpenEvent(ev)}>
+                <button
+                  key={ev.id}
+                  className="sv-ev"
+                  onClick={(e) => onOpenEvent(ev, e.currentTarget)}
+                >
                   <span className="sv-bar" style={{ background: eventColorHex(ev) }} />
                   <span className="sv-time">{ev.allDay ? 'All day' : fmtTime(ev.startTime)}</span>
                   <span className="sv-body">

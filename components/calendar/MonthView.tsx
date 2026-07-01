@@ -8,6 +8,7 @@ import {
   startOfWeek,
   WEEKDAYS_NARROW,
 } from './util';
+import { type Anchor } from '../primitives/AnchoredSheet';
 
 export default function MonthView({
   anchor,
@@ -18,7 +19,7 @@ export default function MonthView({
   anchor: Date;
   events: CalEvent[];
   onPickDay: (d: Date) => void;
-  onOpenEvent: (ev: CalEvent) => void;
+  onOpenEvent: (ev: CalEvent, anchor?: Anchor) => void;
 }) {
   const monthFirst = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
   const gridStart = startOfWeek(monthFirst);
@@ -70,7 +71,7 @@ export default function MonthView({
                     className="mv-chip"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onOpenEvent(ev);
+                      onOpenEvent(ev, e.currentTarget);
                     }}
                     style={
                       ev.busy

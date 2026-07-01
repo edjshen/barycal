@@ -18,6 +18,7 @@ import MonthView from './MonthView';
 import ScheduleView from './ScheduleView';
 import EventEditor from './EventEditor';
 import EventDetail from './EventDetail';
+import { type Anchor } from '../primitives/AnchoredSheet';
 
 type View = 'day' | '3day' | 'week' | 'month' | 'schedule';
 const VIEWS: [View, string][] = [
@@ -50,8 +51,9 @@ export default function CalendarApp({
     existing?: CalEvent;
     startISO?: string;
     endISO?: string;
+    anchor?: Anchor;
   }>({ open: false });
-  const [detail, setDetail] = useState<CalEvent | null>(null);
+  const [detail, setDetail] = useState<{ ev: CalEvent; anchor?: Anchor } | null>(null);
 
   // ---- which calendar dates are visible for the current view ----
   const visible = useMemo(() => rangeFor(view, anchor), [view, anchor]);
@@ -185,8 +187,10 @@ export default function CalendarApp({
             days={gridDays}
             events={events}
             meId={meId}
-            onCreate={({ startISO, endISO }) => setEditor({ open: true, startISO, endISO })}
-            onOpenEvent={(ev) => setDetail(ev)}
+            onCreate={({ startISO, endISO }, anchor) =>
+              setEditor({ open: true, startISO, endISO, anchor })
+            }
+            onOpenEvent={(ev, anchor) => setDetail({ ev, anchor })}
             onMove={(ev, startISO, endISO) => {
               // Dragging a single occurrence of a series creates a per-instance
               // override; only optimistically shift non-recurring events (whose
@@ -216,11 +220,15 @@ export default function CalendarApp({
               setAnchor(startOfDay(d));
               setView('day');
             }}
-            onOpenEvent={(ev) => setDetail(ev)}
+            onOpenEvent={(ev, anchor) => setDetail({ ev, anchor })}
           />
         )}
         {view === 'schedule' && (
-          <ScheduleView anchor={anchor} events={events} onOpenEvent={(ev) => setDetail(ev)} />
+          <ScheduleView
+            anchor={anchor}
+            events={events}
+            onOpenEvent={(ev, anchor) => setDetail({ ev, anchor })}
+          />
         )}
       </div>
 
@@ -228,7 +236,7 @@ export default function CalendarApp({
       <button
         className="cal-fab"
         aria-label="Create event"
-        onClick={() => {
+        onClick={(e) => {
           const now = new Date();
           const inView =
             now.getTime() >= visible.start.getTime() && now.getTime() < visible.end.getTime();
@@ -239,6 +247,7 @@ export default function CalendarApp({
             open: true,
             startISO: base.toISOString(),
             endISO: new Date(base.getTime() + 3600000).toISOString(),
+            anchor: e.currentTarget,
           });
         }}
       >
@@ -251,18 +260,21 @@ export default function CalendarApp({
         <EventEditor
           open={editor.open}
           init={{ existing: editor.existing, startISO: editor.startISO, endISO: editor.endISO }}
+          anchor={editor.anchor}
           onOpenChange={(o) => setEditor((s) => ({ ...s, open: o }))}
           onSaved={refresh}
         />
       )}
       {detail && (
         <EventDetail
-          ev={detail}
+          ev={detail.ev}
           meId={meId}
+          anchor={detail.anchor}
           onOpenChange={(o) => !o && setDetail(null)}
           onEdit={(ev) => {
+            const at = detail.anchor;
             setDetail(null);
-            setEditor({ open: true, existing: ev });
+            setEditor({ open: true, existing: ev, anchor: at });
           }}
           onChanged={refresh}
         />

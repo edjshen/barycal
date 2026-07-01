@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sheet from '../primitives/Sheet';
+import AnchoredSheet, { type Anchor } from '../primitives/AnchoredSheet';
 import { createEvent, updateEvent } from '@/lib/actions/events';
 import { CalEvent, CAL_COLORS, toDateInput, toLocalInput } from './util';
 import RecurScopePrompt, { type Scope } from './RecurScopePrompt';
@@ -35,11 +35,13 @@ type Init = {
 export default function EventEditor({
   open,
   init,
+  anchor,
   onOpenChange,
   onSaved,
 }: {
   open: boolean;
   init: Init;
+  anchor?: Anchor;
   onOpenChange: (o: boolean) => void;
   onSaved: () => void;
 }) {
@@ -115,7 +117,7 @@ export default function EventEditor({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <AnchoredSheet open={open} onOpenChange={onOpenChange} anchor={anchor}>
       <h3>{isEdit ? 'Edit event' : 'New event'}</h3>
 
       <div className="field">
@@ -264,7 +266,7 @@ export default function EventEditor({
           onPick={(s) => commit(s)}
         />
       )}
-    </Sheet>
+    </AnchoredSheet>
   );
 }
 
