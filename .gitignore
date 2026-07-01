@@ -1,5 +1,7 @@
 node_modules/
-data/
+# Anchored to the repo root so it doesn't also swallow nested dirs like
+# e2e-kit/src/data/ (which broke CI when git add silently skipped them).
+/data/
 .env
 .env.local
 .DS_Store
