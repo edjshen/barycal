@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import NativeBootstrap from '@/components/NativeBootstrap';
 
 export const metadata: Metadata = {
   title: 'Barycal',
@@ -24,7 +25,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <NativeBootstrap />
+        {children}
+      </body>
     </html>
   );
 }

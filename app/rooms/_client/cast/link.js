@@ -5,6 +5,7 @@
  */
 import { buildRoomUrl } from '@/lib/mayfly/shared/credential.js';
 import { keyToFragment } from '@/lib/mayfly/shared/crypto.js';
+import { isNative, nativeShare, nativeCopy } from '@/lib/native/bridge.js';
 
 /** @param {{ id: string, key: Uint8Array, event?: boolean, desiredExpiresAt?: number|null }} room */
 export function roomUrl(room, origin) {
@@ -21,6 +22,20 @@ export function roomUrl(room, origin) {
  */
 export async function shareOrCopyRoom(room, origin) {
   const url = roomUrl(room, origin);
+
+  // Native shell: use the OS share sheet / clipboard via injected Capacitor
+  // plugins. Falls through to the Web Share path only if the plugin is absent.
+  if (isNative()) {
+    const res = await nativeShare({
+      title: 'join my room',
+      text: 'a room that vanishes in 24h',
+      url,
+    });
+    if (res === 'shared') return 'shared';
+    if (res === 'cancelled') return 'failed';
+    if (await nativeCopy(url)) return 'copied';
+  }
+
   if (typeof navigator !== 'undefined' && navigator.share) {
     try {
       await navigator.share({ title: 'join my room', text: 'a room that vanishes in 24h', url });

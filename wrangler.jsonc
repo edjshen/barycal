@@ -15,13 +15,13 @@
       // Local `wrangler d1 ... --local` uses a separate on-disk SQLite, so this
       // id is only consulted for --remote operations and deploys.
       "database_id": "6ebb2f3c-8c8a-4f2e-84e0-6d5b763c8d39",
-      "migrations_dir": "drizzle"
-    }
+      "migrations_dir": "drizzle",
+    },
   ],
   "observability": { "enabled": true },
   "workers_dev": true,
   "routes": [
     { "pattern": "barycal.com", "custom_domain": true },
-    { "pattern": "www.barycal.com", "custom_domain": true }
-  ]
+    { "pattern": "www.barycal.com", "custom_domain": true },
+  ],
 }

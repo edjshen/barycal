@@ -68,8 +68,12 @@ export default function Landing() {
           <span className="lp-mark" /> Barycal
         </a>
         <div className="lp-nav-cta">
-          <Link href="/login" className="lp-ghost">Log in</Link>
-          <Link href="/register" className="btn solid lp-navbtn">Get started</Link>
+          <Link href="/login" className="lp-ghost">
+            Log in
+          </Link>
+          <Link href="/register" className="btn solid lp-navbtn">
+            Get started
+          </Link>
         </div>
       </header>
 
@@ -79,17 +83,21 @@ export default function Landing() {
             <span className="lp-ping" /> a barycal · your social calendar
           </span>
           <h1 className="lp-h1">
-            Your life,<br />
+            Your life,
+            <br />
             <span className="lp-grad">in orbit.</span>
           </h1>
           <p className="lp-sub">
-            Barycal turns your calendar into your profile. Share when you’re free, see
-            who’s around, and actually make plans — all in one place your whole circle
-            orbits.
+            Barycal turns your calendar into your profile. Share when you’re free, see who’s around,
+            and actually make plans — all in one place your whole circle orbits.
           </p>
           <div className="lp-actions">
-            <Link href="/register" className="btn solid lp-big">Create your orbit</Link>
-            <Link href="/login" className="btn lp-big">I have an account</Link>
+            <Link href="/register" className="btn solid lp-big">
+              Create your orbit
+            </Link>
+            <Link href="/login" className="btn lp-big">
+              I have an account
+            </Link>
           </div>
         </div>
         <Orbit />
