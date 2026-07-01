@@ -1,0 +1,101 @@
+# Browser-level E2E, powered by the shared @edjshen/e2e-kit toolkit.
+#
+# WHY this shape:
+#   - The GATE runs the converted, web-first @smoke/@critical specs and is the
+#     required check. barycal's suite is small, so it runs as a single job (no
+#     sharding); the kit's config factory still supports shard+blob-merge for
+#     the larger apps (plur-nyc, poisys).
+#   - Accessibility (axe) runs NON-BLOCKING: on a legacy app axe surfaces real
+#     violations, so it's informational until triaged (see e2e/MIGRATION.md).
+#   - Each job seeds a fresh local Cloudflare D1 (demo user `ed`) before Playwright
+#     boots `next dev`, so the run is self-contained with no service secrets.
+name: E2E
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Gate (smoke + critical)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      E2E_GREP: '@smoke|@critical'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright (chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare local D1 (migrate + seed)
+        run: npm run e2e:prepare
+
+      - name: Run E2E gate
+        run: npx playwright test --reporter=list,html
+
+      - name: Upload HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  a11y:
+    name: Accessibility (axe) — non-blocking
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    env:
+      CI: 'true'
+      E2E_GREP: '@a11y'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright (chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare local D1 (migrate + seed)
+        run: npm run e2e:prepare
+
+      - name: Run accessibility scans
+        run: npx playwright test --reporter=list,html
+
+      - name: Upload a11y report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-report
+          path: playwright-report/
+          retention-days: 7

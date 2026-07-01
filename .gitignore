@@ -1,5 +1,7 @@
 node_modules/
-data/
+# Anchored to the repo root so it doesn't also swallow nested dirs like
+# e2e-kit/src/data/ (which broke CI when git add silently skipped them).
+/data/
 .env
 .env.local
 .DS_Store
@@ -20,6 +22,9 @@ workers/room/node_modules/
 .claire/
 test-results/
 playwright-report/
+playwright/.auth/
+blob-report/
+all-blob-reports/
 
 # e2e-fidelity mutation temp files (never commit)
 **/__mutated__*
