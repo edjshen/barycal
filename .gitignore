@@ -20,6 +20,9 @@ workers/room/node_modules/
 .claire/
 test-results/
 playwright-report/
+playwright/.auth/
+blob-report/
+all-blob-reports/
 
 # e2e-fidelity mutation temp files (never commit)
 **/__mutated__*

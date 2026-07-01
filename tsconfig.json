@@ -14,7 +14,10 @@
     "isolatedModules": true,
     "types": ["vitest/globals"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@edjshen/e2e-kit": ["./e2e-kit/src/index.ts"],
+      "@edjshen/e2e-kit/config": ["./e2e-kit/src/config.ts"],
+      "@edjshen/e2e-kit/*": ["./e2e-kit/src/*"]
     },
     "plugins": [
       {

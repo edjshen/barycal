@@ -1,92 +1,34 @@
 import { test, expect } from '@playwright/test';
 
-async function login(page: any) {
-  await page.goto('/login');
-  await page.fill('input[name="username"], input[type="text"]:visible', 'ed');
-  await page.fill('input[type="password"]', 'barycal');
-  await page.click('button[type="submit"]');
-  await page.waitForURL(/\/(discover|calendar|plans|regulars|circles|you)/, { timeout: 10000 });
-}
+// Authenticated: these reuse the shared storageState from the `setup` project,
+// so no per-test login. Targets the REAL current tab bar (Organizations /
+// Regulars / Calendar / Profile) — the folded Plans/Circles tabs are gone.
+test.describe('Primary navigation', { tag: ['@smoke', '@critical'] }, () => {
+  const DESTINATIONS = [
+    { label: 'Organizations', url: /\/organizations/ },
+    { label: 'Regulars', url: /\/regulars/ },
+    { label: 'Calendar', url: /\/calendar/ },
+    { label: 'Profile', url: /\/you/ },
+  ];
 
-test.describe('Navigation & Tab Bar', () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page);
-  });
+  // The tab bar is the one <nav> landmark that contains a "Regulars" link.
+  const tabBar = (page: import('@playwright/test').Page) =>
+    page.getByRole('navigation').filter({ has: page.getByRole('link', { name: 'Regulars' }) });
 
-  test('tab bar is visible on all main pages', async ({ page }) => {
-    const tabs = ['discover', 'calendar', 'plans', 'regulars', 'circles', 'you'];
-    for (const tab of tabs) {
-      await page.goto(`/${tab}`);
-      await page.waitForLoadState('networkidle');
-      // Tab bar should be visible
-      const tabBar = page.locator('nav, [class*="tab-bar"], [class*="tabbar"], [class*="TabBar"]');
-      await expect(tabBar.first()).toBeVisible({ timeout: 5000 });
+  test('the tab bar exposes the primary destinations', async ({ page }) => {
+    await page.goto('/discover');
+    const nav = tabBar(page);
+    await expect(nav).toBeVisible();
+    for (const { label } of DESTINATIONS) {
+      await expect(nav.getByRole('link', { name: label })).toBeVisible();
     }
   });
 
-  test('can navigate between all main tabs', async ({ page }) => {
-    await page.goto('/discover');
-    const links = await page.locator('nav a, [class*="tab"] a').all();
-    expect(links.length).toBeGreaterThanOrEqual(4);
-  });
-
-  test('discover tab is reachable', async ({ page }) => {
-    await page.goto('/discover');
-    await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/discover');
-    // Should not show 404 or error
-    const notFound = await page
-      .locator('[class*="not-found"], h1:has-text("404")')
-      .isVisible({ timeout: 2000 })
-      .catch(() => false);
-    expect(notFound).toBe(false);
-  });
-
-  test('calendar tab is reachable', async ({ page }) => {
-    await page.goto('/calendar');
-    await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/calendar');
-  });
-
-  test('plans tab is reachable', async ({ page }) => {
-    await page.goto('/plans');
-    await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/plans');
-  });
-
-  test('regulars tab is reachable', async ({ page }) => {
-    await page.goto('/regulars');
-    await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/regulars');
-  });
-
-  test('circles tab is reachable', async ({ page }) => {
-    await page.goto('/circles');
-    await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/circles');
-  });
-
-  test('you/profile tab is reachable', async ({ page }) => {
-    await page.goto('/you');
-    await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/you');
-  });
-
-  test('active tab highlights correctly', async ({ page }) => {
-    await page.goto('/discover');
-    await page.waitForLoadState('networkidle');
-    // The discover tab should have an active/selected state
-    // Look for aria-current, data-active, or active CSS class
-    const activeTab = page.locator(
-      'nav a[aria-current="page"], nav a.active, nav [data-active="true"], [class*="tab"][class*="active"]'
-    );
-    // Should have at least one active indicator
-    const count = await activeTab.count();
-    // Either active class exists or we have a working nav
-    const navExists = await page
-      .locator('nav')
-      .isVisible({ timeout: 3000 })
-      .catch(() => false);
-    expect(navExists).toBe(true);
-  });
+  for (const { label, url } of DESTINATIONS) {
+    test(`navigates to ${label}`, async ({ page }) => {
+      await page.goto('/discover');
+      await tabBar(page).getByRole('link', { name: label }).click();
+      await expect(page).toHaveURL(url);
+    });
+  }
 });
