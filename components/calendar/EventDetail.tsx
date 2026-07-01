@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sheet from '../primitives/Sheet';
+import AnchoredSheet, { type Anchor } from '../primitives/AnchoredSheet';
 import { deleteEvent, setRsvp } from '@/lib/actions/events';
 import { CalEvent, eventColorHex, fmtTime, MONTHS, WEEKDAYS } from './util';
 import RecurScopePrompt, { type Scope } from './RecurScopePrompt';
@@ -22,12 +22,14 @@ const RSVPS: [string, string][] = [
 export default function EventDetail({
   ev,
   meId,
+  anchor,
   onOpenChange,
   onEdit,
   onChanged,
 }: {
   ev: CalEvent;
   meId: string;
+  anchor?: Anchor;
   onOpenChange: (o: boolean) => void;
   onEdit: (ev: CalEvent) => void;
   onChanged: () => void;
@@ -73,7 +75,7 @@ export default function EventDetail({
   }
 
   return (
-    <Sheet open onOpenChange={onOpenChange}>
+    <AnchoredSheet open onOpenChange={onOpenChange} anchor={anchor}>
       <div className="ed-head">
         <span className="ed-swatch" style={{ background: eventColorHex(ev) }} />
         <h3 style={{ margin: 0 }}>{ev.busy ? 'Busy' : ev.title || '(no title)'}</h3>
@@ -142,6 +144,6 @@ export default function EventDetail({
           onPick={(s) => doDelete(s)}
         />
       )}
-    </Sheet>
+    </AnchoredSheet>
   );
 }

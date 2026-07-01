@@ -948,6 +948,50 @@ textarea {
   margin: 0 auto 16px;
 }
 
+/* anchored popover (Google-Calendar-style create/detail bubble) — floats next
+   to the place it was opened from instead of docking to the screen edge.
+   Layered at the sheet level (60) so the shared recurring-scope prompt, which
+   mounts later at the same/greater z, still overlays it correctly. */
+.cal-pop-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(4, 3, 7, 0.32);
+}
+.cal-pop-pos {
+  z-index: 60;
+  outline: none;
+  /* keep clear of the viewport edges even before collision shifting kicks in */
+  max-width: 100vw;
+}
+/* compound selector so these win over the desktop `.sheet` overrides defined
+   later in the file (equal specificity would otherwise lose on source order) */
+.sheet.cal-pop {
+  /* override the bottom-sheet sizing from .sheet. Width is a comfortable fixed
+     size (near-full on phones) rather than the space on the anchored side, so
+     it never collapses to a sliver; Base UI flips/shifts it to stay on screen. */
+  width: min(440px, calc(100vw - 20px));
+  max-width: calc(100vw - 20px);
+  max-height: min(86vh, var(--available-height, 86vh));
+  border-radius: 20px;
+  margin: 0;
+  padding: 20px;
+  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.72);
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sheet.cal-pop[data-starting-style],
+.sheet.cal-pop[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+/* the drag handle is a bottom-sheet affordance; a floating card doesn't need it */
+.sheet.cal-pop .grab {
+  display: none;
+}
+
 /* auth */
 .auth {
   min-height: 100vh;
@@ -1657,6 +1701,9 @@ select {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
+  }
+  .sheet.cal-pop {
+    transition: none;
   }
 }
 
