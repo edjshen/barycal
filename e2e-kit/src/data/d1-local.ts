@@ -23,8 +23,7 @@ export class D1LocalAdapter implements DataAdapter {
 
   async provision(): Promise<void> {
     const cwd = this.opts.cwd ?? process.cwd();
-    const run = (cmd: string, args: string[]) =>
-      execFileSync(cmd, args, { cwd, stdio: 'inherit' });
+    const run = (cmd: string, args: string[]) => execFileSync(cmd, args, { cwd, stdio: 'inherit' });
 
     if (this.opts.generateSeed) {
       run(this.opts.generateSeed.cmd, this.opts.generateSeed.args);
