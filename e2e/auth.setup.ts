@@ -15,10 +15,17 @@ const barycalLogin = new FormLoginAdapter({
   expectUrl: /\/(discover|calendar|organizations|regulars|you)/,
 });
 
-setup('authenticate as demo user (ed)', async ({ page }) => {
-  await barycalLogin.createStorageState({
-    page,
-    path: AUTH_FILE,
-    credentials: { username: 'ed', password: 'barycal' },
-  });
-});
+// Tag the setup with every tier that depends on it so a config-level grep
+// (E2E_GREP) never filters it out — otherwise the storageState is never written
+// and authenticated specs fail with ENOENT on playwright/.auth/ed.json.
+setup(
+  'authenticate as demo user (ed)',
+  { tag: ['@smoke', '@critical', '@a11y'] },
+  async ({ page }) => {
+    await barycalLogin.createStorageState({
+      page,
+      path: AUTH_FILE,
+      credentials: { username: 'ed', password: 'barycal' },
+    });
+  }
+);
