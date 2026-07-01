@@ -23,15 +23,17 @@ npm run test:e2e:report # open the last HTML report
 ## Converted (web-first, real UI, gating)
 
 - `auth.setup.ts` — logs in once via `FormLoginAdapter`, saves `playwright/.auth/ed.json`.
-- `01-landing-auth.spec.ts` — login form, wrong-credentials error, valid login lands on `/discover`, private-route redirect. Runs signed-out (`storageState: { cookies: [], origins: [] }`).
+- `01-landing-auth.spec.ts` — login form, wrong-credentials error, valid login reaches the authenticated shell, private-route redirect. Runs signed-out (`storageState: { cookies: [], origins: [] }`).
 - `02-navigation.spec.ts` — real tab bar (Organizations / Regulars / Calendar / Profile); each destination navigates. Reuses the shared session.
+- `08-profile.spec.ts` — `/you` shows the signed-in user (`@ed`) + Share/Edit/Log out; opening "Edit profile" reveals the edit form. Reuses the shared session.
+- `10-public-pages.spec.ts` — account-free `/u/ed` renders with a sign-up CTA; unknown handle 404s. Runs signed-out.
 - `a11y.spec.ts` — axe WCAG A/AA on the login page + calendar (`@a11y`, non-blocking).
 
 ## Backlog — legacy specs to convert (still untagged, not in CI)
 
 `03-discover` · `04-calendar` · `05-create-event` · `06-circles` · `07-regulars` ·
-`08-profile` · `09-plans` · `10-public-pages` · `11-ux-polish` · `12-rsvp` ·
-`13-event-detail` · `14-mobile-ux` · `15-error-states`
+`09-plans` · `11-ux-polish` · `12-rsvp` · `13-event-detail` · `14-mobile-ux` ·
+`15-error-states`
 
 These predate the kit and use the anti-patterns the kit exists to remove:
 
